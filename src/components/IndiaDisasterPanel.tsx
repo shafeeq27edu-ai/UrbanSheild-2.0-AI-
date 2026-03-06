@@ -28,7 +28,7 @@ export default function IndiaDisasterPanel({ metrics, coords }: IndiaDisasterPan
 
                 // Get drainage efficiency from metrics if available, otherwise baseline 40
                 let drainage = 40;
-                if (metrics?.urban_profile?.drainage_efficiency) {
+                if (metrics?.urban_profile?.drainage_efficiency !== undefined) {
                     drainage = metrics.urban_profile.drainage_efficiency * 100;
                 }
 

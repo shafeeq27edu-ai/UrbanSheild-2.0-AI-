@@ -31,3 +31,9 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# Temporary Logs and Build Outputs
+*.log
+*_output*.txt
+server_log.txt
+test_import.py

@@ -12,6 +12,8 @@ import RiskPanel from '@/components/ui/RiskPanel';
 import RiskAlert from '@/components/ui/RiskAlert';
 import LocationSearch from '@/components/map/LocationSearch';
 import IndiaDisasterPanel from '@/components/IndiaDisasterPanel';
+import EvacuationPanel from '@/components/EvacuationPanel';
+import { BENGALURU_RISK_FALLBACK } from '@/engines/cityDefaults';
 
 // SSR-Safe dynamic import for the Map
 const UrbanMap = dynamic(() => import('@/components/map/UrbanMap'), {
@@ -24,11 +26,14 @@ export default function Home() {
     const [loading, setLoading] = useState(false);
     const [language, setLanguage] = useState<SupportedLanguage>('en');
 
-    // Default to India center coordinates
-    const [selectedCity, setSelectedCity] = useState("India (National Core)");
-    const [selectedCoords, setSelectedCoords] = useState<[number, number]>([20.5937, 78.9629]);
+    // Default to Bengaluru as the single source of truth
+    const [selectedLocation, setSelectedLocation] = useState("Bengaluru");
+    const [selectedCoords, setSelectedCoords] = useState<[number, number]>([12.9716, 77.5946]);
 
     const [metrics, setMetrics] = useState<any>(null);
+    // Use fallback metrics for initial display to avoid blank state
+    const displayMetrics = metrics || (selectedLocation === "Bengaluru" ? BENGALURU_RISK_FALLBACK : null);
+
     const [error, setError] = useState<string | null>(null);
 
     const t = useMemo(() => translationService.getTranslations(language), [language]);
@@ -74,27 +79,30 @@ export default function Home() {
     };
 
     const executeStressTest = async () => {
-        fetchMetrics(selectedCity, selectedCoords[0], selectedCoords[1]);
+        fetchMetrics(selectedLocation, selectedCoords[0], selectedCoords[1]);
     };
 
     const handleCityChange = (city: string) => {
-        setSelectedCity(city);
-        const coords = CITY_COORDS[city] || [20.5937, 78.9629];
+        const safeCity = city || "Bengaluru";
+        setSelectedLocation(safeCity);
+        const coords = CITY_COORDS[safeCity] || CITY_COORDS["Bengaluru"];
         setSelectedCoords(coords);
     };
 
     const handleMapClick = (lat: number, lng: number) => {
-        setSelectedCoords([lat, lng]);
-        setSelectedCity(`Point: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
-        fetchMetrics("Custom Point", lat, lng);
+        const safeLat = lat ?? 12.9716;
+        const safeLng = lng ?? 77.5946;
+        setSelectedCoords([safeLat, safeLng]);
+        setSelectedLocation(`Point: ${safeLat.toFixed(4)}, ${safeLng.toFixed(4)}`);
+        fetchMetrics("Custom Point", safeLat, safeLng);
     };
 
     const handleLocationSelect = (lat: number, lng: number, displayName: string) => {
-        const parts = displayName.split(",");
-        const derivedCity = parts.length > 0 ? parts[0].trim() : selectedCity;
-        setSelectedCity(derivedCity);
-        setSelectedCoords([lat, lng]);
-        fetchMetrics(derivedCity, lat, lng);
+        const parts = displayName ? displayName.split(",") : [];
+        const derivedCity = parts.length > 0 ? parts[0].trim() : selectedLocation;
+        setSelectedLocation(derivedCity || "Bengaluru");
+        setSelectedCoords([lat ?? 12.9716, lng ?? 77.5946]);
+        fetchMetrics(derivedCity || "Bengaluru", lat, lng);
     };
 
     return (
@@ -131,7 +139,7 @@ export default function Home() {
                     >
                         <div className="page-wrapper relative">
                             <div className="w-full bg-[var(--color-navy)] text-white text-[10px] font-black tracking-widest uppercase p-1 flex justify-between items-center px-4">
-                                <span className={!error && metrics ? "text-green-400" : "text-slate-400"}>
+                                <span className={!error && displayMetrics ? "text-green-400" : "text-slate-400"}>
                                     ● {t.ui_telemetry} ACTIVE
                                 </span>
                                 <div className="flex items-center gap-4">
@@ -151,9 +159,9 @@ export default function Home() {
                             </div>
 
                             <Header
-                                selectedCity={selectedCity}
+                                selectedCity={selectedLocation || "Bengaluru"}
                                 onCityChange={handleCityChange}
-                                overallRisk={metrics?.compound_risk_index || 0}
+                                overallRisk={displayMetrics?.compound_risk_index || 0}
                             />
 
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 p-8 flex-1">
@@ -173,26 +181,26 @@ export default function Home() {
                                         </div>
                                     )}
 
-                                    {metrics && (
+                                    {displayMetrics && (
                                         <div className="bg-white/50 border border-[var(--color-navy)]/10 p-4 flex flex-col gap-2 relative overflow-hidden">
-                                            {metrics.engine_status === "CORE_RESILIENCE" && (
+                                            {displayMetrics.engine_status === "CORE_RESILIENCE" && (
                                                 <div className="absolute top-0 right-0 bg-amber-500 text-[8px] font-black text-white px-2 py-0.5 uppercase tracking-tighter">
                                                     Demo Mode
                                                 </div>
                                             )}
                                             <div className="flex justify-between items-center border-b border-[var(--color-navy)]/5 pb-2">
                                                 <span className="text-[9px] font-black uppercase text-slate-500">{t.ui_confidence}</span>
-                                                <span className="text-sm font-black text-[var(--color-navy)]">{metrics.model_confidence}%</span>
+                                                <span className="text-sm font-black text-[var(--color-navy)]">{displayMetrics.model_confidence}%</span>
                                             </div>
                                             <div className="w-full bg-slate-200 h-1 mt-1">
                                                 <div
                                                     className="bg-[var(--color-accent)] h-full transition-all duration-1000"
-                                                    style={{ width: `${metrics.model_confidence}%` }}
+                                                    style={{ width: `${displayMetrics.model_confidence}%` }}
                                                 />
                                             </div>
                                             <div className="mt-2 text-[8px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                                                <div className={`w-1 h-1 rounded-full ${metrics.engine_status === "CORE_RESILIENCE" ? "bg-amber-400" : "bg-green-400"}`}></div>
-                                                {metrics.engine_status === "CORE_RESILIENCE" ? "Core Resilience Fallback Active" : "Premium Intelligence Online"}
+                                                <div className={`w-1 h-1 rounded-full ${displayMetrics.engine_status === "CORE_RESILIENCE" ? "bg-amber-400" : "bg-green-400"}`}></div>
+                                                {displayMetrics.engine_status === "CORE_RESILIENCE" ? "Core Resilience Fallback Active" : "Premium Intelligence Online"}
                                             </div>
                                         </div>
                                     )}
@@ -209,8 +217,8 @@ export default function Home() {
 
                                     <div className="flex-1 min-h-[500px] relative border-2 border-[var(--color-navy)]">
                                         <UrbanMap
-                                            center={selectedCoords}
-                                            riskLevel={metrics?.compound_risk_index || 0}
+                                            center={selectedCoords || [12.9716, 77.5946]}
+                                            riskLevel={displayMetrics?.compound_risk_index || 0}
                                             onMapClick={handleMapClick}
                                         />
 
@@ -226,20 +234,20 @@ export default function Home() {
                                         )}
                                     </div>
 
-                                    {metrics && (
+                                    {displayMetrics && (
                                         <RiskAlert
-                                            score={metrics.compound_risk_index}
+                                            score={displayMetrics.compound_risk_index}
                                             language={language}
                                         />
                                     )}
                                 </div>
 
                                 <div className="lg:col-span-3 flex flex-col gap-6">
-                                    {metrics ? (
+                                    {displayMetrics ? (
                                         <RiskPanel data={{
-                                            flood_risk_index: metrics.flood_risk_index,
-                                            heat_risk_index: metrics.heat_risk_index,
-                                            compound_risk_index: metrics.compound_risk_index,
+                                            flood_risk_index: displayMetrics.flood_risk_index,
+                                            heat_risk_index: displayMetrics.heat_risk_index,
+                                            compound_risk_index: displayMetrics.compound_risk_index,
                                         }} />
                                     ) : (
                                         <div className="text-center font-bold text-slate-400 uppercase tracking-widest text-[10px] p-12 border-2 border-dashed border-slate-200">
@@ -257,7 +265,18 @@ export default function Home() {
                                     </span>
                                     <div className="flex-1 h-px bg-[var(--color-navy)]/5" />
                                 </div>
-                                <IndiaDisasterPanel metrics={metrics} coords={selectedCoords} />
+                                <IndiaDisasterPanel metrics={displayMetrics} coords={selectedCoords} />
+                            </div>
+
+                            <div className="w-full px-8 pb-16">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="w-12 h-px bg-[var(--color-navy)]/20" />
+                                    <span className="text-[10px] uppercase font-black tracking-[0.3em] text-[var(--color-navy)]/40">
+                                        RELIEF OPERATIONS: EVACUATION OPTIMIZATION
+                                    </span>
+                                    <div className="flex-1 h-px bg-[var(--color-navy)]/5" />
+                                </div>
+                                <EvacuationPanel metrics={displayMetrics} city={selectedLocation || "Bengaluru"} />
                             </div>
                         </div>
                     </motion.div>

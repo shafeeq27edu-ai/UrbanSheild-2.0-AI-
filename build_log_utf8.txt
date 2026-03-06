@@ -1,0 +1,49 @@
+﻿
+> urbanshield-ai@0.1.0 build
+> next build
+
+   Γû▓ Next.js 14.1.0
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+
+./src/components/map/UrbanMap.tsx
+101:8  Warning: React Hook useEffect has missing dependencies: 'center', 'onMapClick', and 'riskLevel'. Either include them or remove the dependency array. If 'onMapClick' changes too often, find the parent component that defines it and wrap that definition in useCallback.  react-hooks/exhaustive-deps
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/13) ...
+
+   Generating static pages (3/13) 
+
+   Generating static pages (6/13) 
+
+   Generating static pages (9/13) 
+
+ Γ£ô Generating static pages (13/13) 
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+Γöî Γùï /                                    15 kB           139 kB
+Γö£ Γùï /_not-found                          0 B                0 B
+Γö£ Γùï /about                               580 B          85.2 kB
+Γö£ Γùï /api/health                          0 B                0 B
+Γö£ ╬╗ /api/predict                         0 B                0 B
+Γö£ ╬╗ /api/stress-test                     0 B                0 B
+Γö£ Γùï /contact                             580 B          85.2 kB
+Γö£ Γùï /how-it-works                        2.73 kB         131 kB
+Γö£ Γùï /india-intelligence                  172 B          87.7 kB
+Γö£ Γùï /intelligence                        580 B          85.2 kB
+Γöö Γùï /simulations                         7.7 kB         92.3 kB
++ First Load JS shared by all            84.6 kB
+  Γö£ chunks/69-4db5ffb58bafe9ee.js        28.9 kB
+  Γö£ chunks/fd9d1056-b34e90ae3fbd908b.js  53.4 kB
+  Γöö other shared chunks (total)          2.37 kB
+
+
+Γùï  (Static)   prerendered as static content
+╬╗  (Dynamic)  server-rendered on demand using Node.js
+

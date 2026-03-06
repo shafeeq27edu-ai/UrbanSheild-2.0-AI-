@@ -41,6 +41,7 @@ export default function IntelligenceMenu() {
         { label: "ABOUT", href: "/about" },
         { label: "INTELLIGENCE ENGINE", href: "/intelligence" },
         { label: "INDIA INTELLIGENCE", href: "/india-intelligence" },
+        { label: "SIMULATIONS & AR", href: "/simulations" },
         { label: "CONTACT", href: "/contact" },
     ];
 
