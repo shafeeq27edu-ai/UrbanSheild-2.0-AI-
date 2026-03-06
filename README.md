@@ -7,11 +7,11 @@ UrbanShield AI is a premium, investor-grade smart city command center simulation
 - **AI Intelligence**: Predictive analytics for flood and heat stress.
 - **Cinematic UI**: Glassmorphism, ambient animations, and premium data visualization.
 - **Emergency Protocols**: Simulated alert systems with audio feedback.
-<<<<<<< Updated upstream
-Modern cities face increasing climate volatility, yet most systems react only after disasters occur. URBANSHIELD AI shifts the approach from reactive to predictive — using intelligent risk modeling and dynamic scenario simulation to provide early warnings, infrastructure stress insights, and actionable mitigation recommendations.
-=======
+- **Real-time Digital Twin**: Interactive 3D map with risk heatmaps.
+- **AI Intelligence**: Predictive analytics for flood and heat stress.
+- **Cinematic UI**: Glassmorphism, ambient animations, and premium data visualization.
+- **Emergency Protocols**: Simulated alert systems with audio feedback.
 - **Systemic Intelligence (L3)**: Adaptive anomaly detection, infrastructure collapse modeling, and resource allocation optimization.
->>>>>>> Stashed changes
 
 🚨 The Problem
 
