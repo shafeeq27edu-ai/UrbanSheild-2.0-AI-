@@ -11,6 +11,7 @@ import Header from '@/components/ui/Header';
 import RiskPanel from '@/components/ui/RiskPanel';
 import RiskAlert from '@/components/ui/RiskAlert';
 import LocationSearch from '@/components/map/LocationSearch';
+import IndiaDisasterPanel from '@/components/IndiaDisasterPanel';
 
 // SSR-Safe dynamic import for the Map
 const UrbanMap = dynamic(() => import('@/components/map/UrbanMap'), {
@@ -246,6 +247,17 @@ export default function Home() {
                                         </div>
                                     )}
                                 </div>
+                            </div>
+
+                            <div className="w-full px-8 pb-12">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="w-12 h-px bg-[var(--color-navy)]/20" />
+                                    <span className="text-[10px] uppercase font-black tracking-[0.3em] text-[var(--color-navy)]/40">
+                                        REGIONAL MODULE: INDIA INTELLIGENCE SURFACE
+                                    </span>
+                                    <div className="flex-1 h-px bg-[var(--color-navy)]/5" />
+                                </div>
+                                <IndiaDisasterPanel metrics={metrics} coords={selectedCoords} />
                             </div>
                         </div>
                     </motion.div>
