@@ -134,12 +134,14 @@ export default function ClimateMap() {
 
         // Update data with latest scores from results hook
         const updatedData: FeatureCollection<Point> = generateSyntheticZones();
+        if (!updatedData || !updatedData.features) return;
+
         updatedData.features = updatedData.features.map(f => {
-            const zoneData = results.find(r => r.id === f.properties?.id);
+            const zoneData = (results || []).find(r => r.id === f.properties?.id);
             return {
                 ...f,
                 properties: {
-                    ...f.properties,
+                    ...(f.properties || {}),
                     risk: viewMode === 'flood' ? zoneData?.flood.score || 0 : zoneData?.heat.score || 0
                 }
             };

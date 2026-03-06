@@ -9,6 +9,7 @@ export interface FloodRiskInputs {
     riverBasinStressIndex: number; // 0-100
     drainageCapacity: number; // 0-100
     precipitationPatternAnomaly: number; // -1.0 to 1.0
+    cityName?: string;
 }
 
 export interface FloodRiskOutput {

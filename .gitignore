@@ -35,5 +35,7 @@ next-env.d.ts
 # Temporary Logs and Build Outputs
 *.log
 *_output*.txt
+npm_build_log.txt
+npm_install_log.txt
 server_log.txt
 test_import.py

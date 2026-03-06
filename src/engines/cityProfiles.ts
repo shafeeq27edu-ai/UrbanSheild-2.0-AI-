@@ -178,5 +178,5 @@ export const getCityByCoords = (lat: number, lon: number): CityProfile | null =>
         const distance = Math.sqrt(dLat * dLat + dLon * dLon);
         if (distance < 0.5) return city;
     }
-    return null;
+    return CITIES["Bengaluru"];
 };

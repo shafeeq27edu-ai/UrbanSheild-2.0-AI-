@@ -18,11 +18,11 @@ export const apiClient = {
                 const id = setTimeout(() => controller.abort(), timeout);
 
                 const response = await fetch(url, {
-                    ...fetchOptions,
+                    ...(fetchOptions || {}),
                     signal: controller.signal,
                     headers: {
                         'Content-Type': 'application/json',
-                        ...fetchOptions.headers,
+                        ...(fetchOptions?.headers || {}),
                     },
                 });
 

@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertTriangle, Info, ShieldAlert, CheckCircle2, Send } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { translationService, SupportedLanguage } from "@/services/translationService";
 
 interface RiskAlertProps {
@@ -21,11 +21,30 @@ export default function RiskAlert({ score, language }: RiskAlertProps) {
     };
 
     const [smsSent, setSmsSent] = useState(false);
+    const [secondsAgo, setSecondsAgo] = useState(0);
 
     const handleSmsBroadcast = () => {
         setSmsSent(true);
-        setTimeout(() => setSmsSent(false), 4000);
     };
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (smsSent) {
+            setSecondsAgo(0);
+            interval = setInterval(() => {
+                setSecondsAgo(prev => prev + 1);
+            }, 1000);
+
+            const timeout = setTimeout(() => {
+                setSmsSent(false);
+            }, 8000);
+
+            return () => {
+                clearInterval(interval);
+                clearTimeout(timeout);
+            };
+        }
+    }, [smsSent]);
 
     return (
         <AnimatePresence mode="wait">
@@ -73,7 +92,7 @@ export default function RiskAlert({ score, language }: RiskAlertProps) {
                             <Send className="w-4 h-4 text-[var(--color-accent)]" />
                         </div>
                         <div>
-                            <p className="text-xs font-black uppercase tracking-wider text-[var(--color-accent)]">SMS Dispatched</p>
+                            <p className="text-xs font-black uppercase tracking-wider text-[var(--color-accent)]">SMS Dispatched: {secondsAgo}s ago</p>
                             <p className="text-xs font-medium text-white/70 mt-0.5">Alert broadcasted to 45,000+ residents in <strong>{language.toUpperCase()}</strong>.</p>
                         </div>
                     </motion.div>

@@ -46,7 +46,7 @@ export default function UrbanMap({ center, riskLevel, onMapClick }: UrbanMapProp
 
     // Initialize map purely on client
     useEffect(() => {
-        if (typeof window === "undefined" || !mapRef.current || !isMounted) return;
+        if (typeof window === "undefined" || !mapRef.current || !isMounted || !center) return;
 
         let active = true;
 
@@ -122,7 +122,7 @@ export default function UrbanMap({ center, riskLevel, onMapClick }: UrbanMapProp
 
     // Handle updates to center and riskLevel
     useEffect(() => {
-        if (!mapInstance.current || !LRef.current) return;
+        if (!mapInstance.current || !LRef.current || !center) return;
 
         const LObj = LRef.current;
         const map = mapInstance.current;
@@ -164,6 +164,7 @@ export default function UrbanMap({ center, riskLevel, onMapClick }: UrbanMapProp
 
     }, [center, riskLevel]);
 
+    if (!center || center.length < 2) return null;
     if (!isMounted) return <div className="w-full h-full min-h-[500px] bg-slate-100 animate-pulse" />;
 
     return (

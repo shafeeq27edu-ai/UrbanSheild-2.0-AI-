@@ -1,5 +1,5 @@
 import React from "react";
-// import HistoricalSimulations from "@/components/HistoricalSimulations";
+import HistoricalSimulations from "@/components/HistoricalSimulations";
 import DisasterSimulationPanel from "@/components/DisasterSimulationPanel";
 import ARVRSimulation from "@/components/ARVRSimulation";
 
@@ -20,12 +20,14 @@ export default function SimulationsPage() {
                 </h1>
 
                 <p className="text-lg text-[var(--color-forest)] font-medium max-w-3xl leading-relaxed">
-                    {" A powerful narrative and analytical layer demonstrating UrbanShield's predictive capabilities applied retroactively to real-world catastrophic events in Bengaluru. Watch the incident timeline unfold and observe dynamic telemetry alongside mapped impact zones. "}
+                    {" A powerful narrative and analytical layer demonstrating UrbanShield's predictive capabilities applied to major nationwide disasters including Wayanad landslides, Bihar floods, Assam river surges, Gujarat rainfall, and Bengaluru urban floods. Watch the incident timeline unfold and observe dynamic telemetry alongside mapped impact zones. "}
                 </p>
             </div>
 
             <div className="w-full max-w-[1400px] space-y-12 animate-[slideUp_0.6s_ease-out_forwards]">
                 <DisasterSimulationPanel />
+
+                <HistoricalSimulations />
 
                 <div className="max-w-6xl mx-auto pt-12">
                     <ARVRSimulation />

@@ -58,8 +58,8 @@ export const useRiskIntelligence = () => {
             let heat = calculateHeatRisk(heatInputs);
 
             if (mitigationActive) {
-                flood = { ...flood, score: Math.max(0, flood.score * 0.7) };
-                heat = { ...heat, score: Math.max(0, heat.score * 0.75) };
+                flood = { ...(flood || {}), score: Math.max(0, (flood?.score || 0) * 0.7) } as any;
+                heat = { ...(heat || {}), score: Math.max(0, (heat?.score || 0) * 0.75) } as any;
             }
 
             const baselineFlood = calculateFloodRisk({ ...floodInputs, rainfall_mm: 0 });
@@ -99,9 +99,9 @@ export const useRiskIntelligence = () => {
             }));
 
             return {
-                ...zone,
-                flood: { ...flood, delta: flood.score - baselineFlood.score },
-                heat: { ...heat, delta: heat.score - baselineHeat.score },
+                ...(zone || {}),
+                flood: { ...(flood || {}), delta: (flood?.score || 0) - (baselineFlood?.score || 0) } as any,
+                heat: { ...(heat || {}), delta: (heat?.score || 0) - (baselineHeat?.score || 0) } as any,
                 baselineFlood,
                 baselineHeat,
                 confidence,

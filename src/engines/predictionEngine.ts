@@ -44,39 +44,41 @@ export function calculateRiskMetrics(inputs: {
     const impervious = inputs.imperviousSurface ?? 50; // Default baseline
 
     // 1. Defensible Flood Score (Standardized Formula)
-    // rainScore: normalized mm to 0-100 (cap at 300mm)
     const rainScore = Math.min(100, (rainfall / 300) * 100);
-    // drainageStress: 0-100 (inverting drainage capacity)
     const drainageStress = 100 - (drainage <= 1 ? drainage * 100 : drainage);
-    // densityScore: normalized to 0-100 (cap at 25k)
     const densityScore = Math.min(100, (popDensity / 25000) * 100);
     const imperviousScore = impervious;
 
-    // Formula: 0.4 rainfall + 0.2 drainage + 0.2 density + 0.2 impervious
-    let flood_risk_index = (rainScore * 0.4) + (drainageStress * 0.2) + (densityScore * 0.2) + (imperviousScore * 0.2);
+    const elev = inputs.elevationIndex ?? 0.3;
+    const terrainAmp = (elev > 0.6 && rainfall > 150) ? Math.min(10, (elev - 0.6) * 50) : 0;
+
+    let flood_risk_index = (rainScore * 0.38) + (drainageStress * 0.22) + (densityScore * 0.15) + (imperviousScore * 0.15) + terrainAmp;
     flood_risk_index = Math.min(100, Math.max(0, flood_risk_index));
 
     // 2. Heat Risk Index (Wet Bulb approximated)
     const tempFactor = ((temp - 15) / 35) * 45;
-    const tempPenalty = Math.min(Math.max(0, (temp - 38) * 2.0), 30);
+    const tempPenalty = temp > 46 ? 30 + (temp - 46) * 4 : Math.min(Math.max(0, (temp - 38) * 2.5), 30);
     const humidityPenalty = Math.max(0, (humidity - 70) * 0.5);
 
     let heat_risk_index = Math.min(100, tempFactor + tempPenalty + humidityPenalty);
 
     // 3. Compound Interaction & Upgrade 15: Stress Synergy
     const interactionTerm = (rainfall * temp) / 2500;
-    let compound_risk_index = (flood_risk_index * 0.55) + (heat_risk_index * 0.35) + (interactionTerm * 1.5);
+    const weighted = (flood_risk_index * 0.55) + (heat_risk_index * 0.35) + (interactionTerm * 1.5);
+    const dominant_floor = Math.max(flood_risk_index, heat_risk_index) * 0.78;
+
+    let compound_risk_index = Math.max(weighted, dominant_floor);
 
     if (flood_risk_index > 65 && heat_risk_index > 65) {
-        compound_risk_index += 12; // Synergy penalty
+        compound_risk_index += 8; // Synergy penalty
     }
     compound_risk_index = Math.round(Math.min(100, compound_risk_index));
 
     // Risk Categorization
     let risk_category: PredictionResults['risk_category'] = 'Low';
-    if (compound_risk_index > 85) risk_category = 'Critical';
-    else if (compound_risk_index > 65) risk_category = 'High';
-    else if (compound_risk_index > 35) risk_category = 'Moderate';
+    if (compound_risk_index >= 62) risk_category = 'Critical';
+    else if (compound_risk_index >= 38) risk_category = 'High';
+    else if (compound_risk_index >= 24) risk_category = 'Moderate';
 
     // Uncertainty Estimation
     const baseConfidence = 96.0;

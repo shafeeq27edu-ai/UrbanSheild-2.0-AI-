@@ -74,10 +74,10 @@ export async function POST(req: Request): Promise<NextResponse<ApiResponse>> {
 
         // Phase 4: Calculate standardized risk metrics (Internal or Hybrid)
         // If Python failed, we simulate the 'data' structure using our city profiles
-        if (isFallback) {
-            const { getCityByCoords, CITIES } = await import("@/engines/cityProfiles");
-            const cityProfile = getCityByCoords(Number(lat), Number(lon)) || CITIES["Bengaluru"];
+        const { getCityByCoords, CITIES } = await import("@/engines/cityProfiles");
+        const cityProfile = getCityByCoords(Number(lat), Number(lon)) || CITIES[cityStr as keyof typeof CITIES] || CITIES["Bengaluru"];
 
+        if (isFallback) {
             data = {
                 urban_profile: {
                     population_density: cityProfile.population_density,
@@ -96,14 +96,14 @@ export async function POST(req: Request): Promise<NextResponse<ApiResponse>> {
             populationDensity: data?.urban_profile?.population_density || 4500,
             drainageCapacity: data?.urban_profile?.drainage_efficiency || 40,
             imperviousSurface: data?.urban_profile?.impervious_surface || 50,
-            elevationIndex: 0.5
+            elevationIndex: cityProfile.elevation_index ?? 0.3
         });
 
         return NextResponse.json({
             success: true,
             data: {
-                ...data,
-                ...riskMetrics,
+                ...(data || {}),
+                ...(riskMetrics || {}),
                 engine_status: isFallback ? "CORE_RESILIENCE" : "PREMIUM_INTELLIGENCE"
             },
             timestamp: new Date().toISOString(),

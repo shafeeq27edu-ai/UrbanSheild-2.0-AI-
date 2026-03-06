@@ -1,4 +1,4 @@
-export type AlertLanguage = 'en' | 'hi' | 'bn' | 'ta' | 'or' | 'te' | 'mr' | 'kn' | 'ml' | 'gu';
+export type AlertLanguage = 'en' | 'hi' | 'bn' | 'ta' | 'or' | 'te' | 'mr' | 'kn' | 'ml' | 'gu' | 'pa' | 'as';
 
 export interface AlertMessage {
     langCode: AlertLanguage;
@@ -96,11 +96,29 @@ const ALERT_DICTIONARY: Record<AlertLanguage, { name: string, templates: { flood
             compound: "સંયુક્ત આપત્તિ કટોકટી: ગંભીર પૂર અને ગરમીનું મોજું. તાત્કાલિક રાહત કેન્દ્રો પર જાઓ.",
             evacuation: "સ્થળાંતર ઓર્ડર: કૃપા કરીને નજીકના ઉંચા મેદાનના રાહત કેન્દ્ર પર જાઓ. માત્ર આવશ્યક વસ્તુઓ જ લાવો."
         }
+    },
+    'pa': {
+        name: 'Punjabi (ਪੰਜਾਬੀ)',
+        templates: {
+            flood: "ਹੜ੍ਹ ਦੀ ਗੰਭੀਰ ਚੇਤਾਵਨੀ: ਤੁਰੰਤ ਉੱਚੇ ਸਥਾਨਾਂ 'ਤੇ ਜਾਓ। ਨਿਰਧਾਰਤ ਰਸਤਿਆਂ ਦੀ ਪਾਲਣਾ ਕਰੋ।",
+            heat: "ਬਹੁਤ ਜ਼ਿਆਦਾ ਗਰਮੀ ਦੀ ਚੇਤਾਵਨੀ: ਘਰ ਦੇ ਅੰਦਰ ਰਹੋ, ਲਗਾਤਾਰ ਪਾਣੀ ਪੀਓ। ਬਾਹਰ ਦਾ ਕੰਮ ਬੰਦ ਕਰੋ।",
+            compound: "ਸੰਯੁਕਤ ਆਫ਼ਤ ਐਮਰਜੈਂਸੀ: ਭਾਰੀ ਹੜ੍ਹ ਅਤੇ ਲੂ। ਤੁਰੰਤ ਨਿਰਧਾਰਤ ਰਾਹਤ ਕੇਂਦਰਾਂ 'ਤੇ ਜਾਓ।",
+            evacuation: "ਨਿਕਾਸੀ ਦਾ ਹੁਕਮ: ਕਿਰਪਾ ਕਰਕੇ ਨਜ਼ਦੀਕੀ ਉੱਚੇ ਰਾਹਤ ਕੇਂਦਰ 'ਤੇ ਜਾਓ। ਸਿਰਫ਼ ਜ਼ਰੂਰੀ ਚੀਜ਼ਾਂ ਹੀ ਲਿਆਓ।"
+        }
+    },
+    'as': {
+        name: 'Assamese (অসমীয়া)',
+        templates: {
+            flood: "গুৰুতৰ বানপানীৰ সতৰ্কবাণী: লগে লগে উচ্চ স্থানলৈ যাওক। নিৰ্ধাৰিত পথ অনুসৰণ কৰক।",
+            heat: "তীব্ৰ তাপপ্ৰবাহৰ সতৰ্কবাণী: ঘৰৰ ভিতৰতে থাকক, ধাৰাবাহিকভাৱে পানী খাওক। সকলো বাহিৰৰ কাম বন্ধ কৰক।",
+            compound: "যৌগিক দুৰ্যোগ জৰুৰীকালীন অৱস্থা: প্ৰবল বানপানী আৰু তাপপ্ৰবাহ। লগে লগে নিৰ্ধাৰিত সাহায্য কেন্দ্ৰলৈ যাওক।",
+            evacuation: "উচ্ছেদৰ নিৰ্দেশ: অনুগ্ৰহ কৰি ওচৰৰ উচ্চ সাহায্য কেন্দ্ৰলৈ যাওক। কেৱਲ প্ৰয়োজনীয় সামগ্ৰীহে আনক।"
+        }
     }
 };
 
 export function generateLocalizedAlerts(riskType: 'flood' | 'heat' | 'compound' | 'evacuation'): AlertMessage[] {
-    const languages: AlertLanguage[] = ['hi', 'bn', 'or', 'ta', 'te', 'mr', 'kn', 'ml', 'gu']; // Focus on Indian regional languages
+    const languages: AlertLanguage[] = ['hi', 'bn', 'ta', 'te', 'mr', 'kn', 'ml', 'gu', 'pa', 'as']; // Focus on Indian regional languages
 
     return languages.map(lang => ({
         langCode: lang,

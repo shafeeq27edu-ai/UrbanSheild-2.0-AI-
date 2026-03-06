@@ -2,6 +2,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import { wayanadLandslide2024 } from '../modules/simulations/wayanadLandslide2024';
+import { assamFlood2024 } from '../modules/simulations/assamFlood2024';
+import { gujaratFlood2024 } from '../modules/simulations/gujaratFlood2024';
+import { biharFloodScenario } from '../modules/simulations/biharFloodScenario';
 import { bengaluruFlood2022 } from '../modules/simulations/bengaluruFlood2022';
 import { bengaluruFlood2020 } from '../modules/simulations/bengaluruFlood2020';
 import { bengaluruHeatwaveScenario } from '../modules/simulations/bengaluruHeatwaveScenario';
@@ -15,7 +19,15 @@ const DisasterSimulationMap = dynamic(
     }
 );
 
-const scenarios = [bengaluruFlood2022, bengaluruFlood2020, bengaluruHeatwaveScenario];
+const scenarios = [
+    wayanadLandslide2024,
+    assamFlood2024,
+    gujaratFlood2024,
+    biharFloodScenario,
+    bengaluruFlood2022,
+    bengaluruFlood2020,
+    bengaluruHeatwaveScenario
+].filter(Boolean);
 
 export default function DisasterSimulationPanel() {
     const [activeScenario, setActiveScenario] = useState(scenarios[0]);
@@ -24,13 +36,18 @@ export default function DisasterSimulationPanel() {
 
     const playTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-    const activeStep = activeScenario.timeline[stepIndex];
+    const activeStep = activeScenario?.timeline?.[stepIndex] || {
+        hour: 0,
+        title: "Initializing...",
+        description: "Loading scenario data...",
+        metrics: { infrastructureStress: 0, populationAffected: 0, evacuationDemand: 0, rainfall: 0, temperature: 0 }
+    };
 
     useEffect(() => {
-        if (isPlaying) {
+        if (isPlaying && activeScenario?.timeline) {
             playTimerRef.current = setInterval(() => {
                 setStepIndex((prev) => {
-                    if (prev < activeScenario.timeline.length - 1) {
+                    if (prev < (activeScenario?.timeline?.length || 0) - 1) {
                         return prev + 1;
                     } else {
                         setIsPlaying(false);
@@ -45,13 +62,25 @@ export default function DisasterSimulationPanel() {
         return () => {
             if (playTimerRef.current) clearInterval(playTimerRef.current);
         };
-    }, [isPlaying, activeScenario.timeline.length]);
+    }, [isPlaying, activeScenario?.timeline]);
 
     const handleScenarioChange = (scenario: typeof scenarios[0]) => {
         setActiveScenario(scenario);
         setStepIndex(0);
         setIsPlaying(false);
     };
+
+    // Safety check for scenarios moved after hooks
+    if (!scenarios || scenarios.length === 0) {
+        return (
+            <div className="w-full bg-[var(--color-navy)] rounded-xl p-12 flex justify-center items-center text-white border border-red-500/50">
+                <div className="text-center">
+                    <h2 className="text-2xl font-black mb-2 text-red-500">SYSTEM ANOMALY</h2>
+                    <p className="text-white/60 uppercase tracking-widest text-xs">No simulation scenarios available in registry</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full bg-[var(--color-navy)] rounded-xl overflow-hidden shadow-2xl border border-[var(--color-accent)]/30 text-white font-sans flex flex-col md:flex-row min-h-[600px]">

@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { monsoonFloodModule, heatwaveModule, IndiaRiskResult, getCityRecommendations } from '@/lib/indiaModules';
+import { calculateMonsoonFloodRisk, FloodRiskOutput } from '@/modules/india/monsoonFloodModule';
+import { calculateHeatwaveVulnerability, HeatwaveOutput } from '@/modules/india/heatwaveModule';
+import { getCityRecommendations } from '@/lib/indiaModules';
 import { weatherService } from '@/services/weatherService';
 import { CITIES, getCityByCoords } from '@/engines/cityProfiles';
 
@@ -12,61 +14,52 @@ interface IndiaDisasterPanelProps {
 }
 
 export default function IndiaDisasterPanel({ metrics, coords, city }: IndiaDisasterPanelProps) {
-    const [floodData, setFloodData] = useState<IndiaRiskResult | null>(null);
-    const [heatData, setHeatData] = useState<IndiaRiskResult | null>(null);
+    const [floodData, setFloodData] = useState<any>(null);
+    const [heatData, setHeatData] = useState<any>(null);
     const [activeTab, setActiveTab] = useState<'flood' | 'heat'>('flood');
     const [loadingLocal, setLoadingLocal] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [weatherMeta, setWeatherMeta] = useState<{ dataSource: string, lastUpdated: string } | null>(null);
 
     useEffect(() => {
         let isMounted = true;
         const fetchLocalData = async () => {
-            setLoadingLocal(true);
             try {
-                // Determine coordinates, fallback to central India
-                const lat = coords?.[0] || 20.5937;
-                const lon = coords?.[1] || 78.9629;
-
+                setLoadingLocal(true);
+                setError(null);
+                const lat = coords?.[0] || 12.9716;
+                const lon = coords?.[1] || 77.5946;
                 const weather = await weatherService.fetchWeather(lat, lon);
-
-                // Get drainage efficiency from metrics if available, otherwise baseline 40
-                let drainage = 40;
-                if (metrics?.urban_profile?.drainage_efficiency !== undefined) {
-                    drainage = metrics.urban_profile.drainage_efficiency * 100;
-                }
 
                 const safeCity = city || "Bengaluru";
                 const profile = coords ? (getCityByCoords(coords[0], coords[1]) || CITIES[safeCity] || CITIES["Bengaluru"]) : (CITIES[safeCity] || CITIES["Bengaluru"]);
 
-                const flood = monsoonFloodModule(
-                    weather.rainfall,
-                    profile.drainage_capacity_index,
-                    profile.population_density,
-                    profile.impervious_surface
-                );
-                const heat = heatwaveModule(
-                    weather.temperature,
-                    weather.humidity,
-                    profile.green_cover_percent
-                );
+                const flood = calculateMonsoonFloodRisk({
+                    rainfallIntensity: weather.rainfall,
+                    riverBasinStressIndex: 45, // Baseline for urban core
+                    drainageCapacity: profile.drainage_capacity_index,
+                    precipitationPatternAnomaly: 0.1
+                });
 
-                setWeatherMeta({
-                    dataSource: weather.dataSource,
-                    lastUpdated: weather.lastUpdated
+                const heat = calculateHeatwaveVulnerability({
+                    temperatureC: weather.temperature,
+                    urbanHeatIslandEffect: 65, // Baseline urban core
+                    populationDensity: profile.population_density / 1000, // Normalize to index
+                    greenCoverPercent: profile.green_cover_percent
                 });
 
                 if (isMounted) {
-                    setFloodData(flood);
-                    setHeatData(heat);
+                    setFloodData({ ...(flood || {}), score: flood?.riskScore || 0 });
+                    setHeatData({ ...(heat || {}), score: heat?.vulnerabilityScore || 0 });
+                    setWeatherMeta({
+                        dataSource: weather.dataSource,
+                        lastUpdated: weather.lastUpdated
+                    });
                 }
             } catch (error) {
-                console.error("Failed to load local India disaster intelligence", error);
+                console.error("Local intelligence failure", error);
                 if (isMounted) {
-                    const fallbackProfile = CITIES["Bengaluru"];
-                    const weather = { rainfall: 0, temperature: 28, humidity: 60, dataSource: "NDMA Fallback (Offline)", lastUpdated: new Date().toISOString() };
-                    setFloodData(monsoonFloodModule(weather.rainfall, fallbackProfile.drainage_capacity_index, fallbackProfile.population_density, fallbackProfile.impervious_surface));
-                    setHeatData(heatwaveModule(weather.temperature, weather.humidity, fallbackProfile.green_cover_percent));
-                    setWeatherMeta({ dataSource: weather.dataSource, lastUpdated: weather.lastUpdated });
+                    setError("Failed to fetch regional intelligence. Please check your connection.");
                 }
             } finally {
                 if (isMounted) setLoadingLocal(false);
@@ -75,12 +68,31 @@ export default function IndiaDisasterPanel({ metrics, coords, city }: IndiaDisas
 
         fetchLocalData();
         return () => { isMounted = false; };
-    }, [metrics, coords]);
+    }, [coords, city, metrics]);
 
-    if (!floodData || !heatData || loadingLocal) return <div className="text-[var(--color-navy)] uppercase tracking-widest text-[10px] font-black flex justify-center items-center h-full animate-pulse p-12">Loading Regional Intelligence...</div>;
+    if (error) return (
+        <div className="w-full p-12 civic-card border-red-600/30 flex flex-col items-center justify-center text-center">
+            <div className="w-12 h-12 rounded-full bg-red-600/10 flex items-center justify-center mb-4">
+                <span className="text-red-600 font-bold text-xl">!</span>
+            </div>
+            <p className="text-[var(--color-navy)] font-black uppercase tracking-widest text-xs mb-4">{error}</p>
+            <button
+                onClick={() => window.location.reload()}
+                className="px-6 py-2 bg-[var(--color-navy)] text-white text-[10px] font-black uppercase tracking-widest hover:bg-[var(--color-accent)] transition-colors"
+            >
+                Retry Connection
+            </button>
+        </div>
+    );
+
+    if (!floodData || !heatData || loadingLocal) return <div className="text-[var(--color-navy)] uppercase tracking-widest text-[10px] font-black flex justify-center items-center h-[400px] animate-pulse p-12 civic-card">Loading Regional Intelligence...</div>;
 
     const currentData = activeTab === 'flood' ? floodData : heatData;
     const title = activeTab === 'flood' ? "Monsoon Flood Risk" : "Heatwave Vulnerability";
+
+    // Joint insights for display
+    const insightsDisplay = currentData.insights?.join(" ") || "No specific anomalies detected for this region.";
+
     return (
         <div className="w-full civic-card">
             {/* Header / Tabs */}
@@ -106,7 +118,7 @@ export default function IndiaDisasterPanel({ metrics, coords, city }: IndiaDisas
 
                 {/* Score Section */}
                 <div className="flex flex-col md:flex-row items-center gap-12">
-                    {/* Gauge placeholder mapping */}
+                    {/* Gauge Section */}
                     <div className="relative w-48 h-48 rounded-full border-8 border-[var(--color-navy)]/10 flex items-center justify-center flex-shrink-0 bg-white shadow-inner">
                         <div className="text-center">
                             <span className="text-6xl font-black block leading-none text-[var(--color-navy)]">
@@ -118,6 +130,7 @@ export default function IndiaDisasterPanel({ metrics, coords, city }: IndiaDisas
                         </div>
                     </div>
 
+                    {/* Assessment Info */}
                     <div className="flex-1 space-y-4">
                         <div className="flex items-center gap-4">
                             <span className="px-4 py-1 text-xs font-black uppercase tracking-widest border-2 border-[var(--color-navy)] text-[var(--color-navy)]">
@@ -128,11 +141,12 @@ export default function IndiaDisasterPanel({ metrics, coords, city }: IndiaDisas
                             {title} Assessment
                         </h3>
                         <p className="text-[var(--color-forest)] font-medium leading-relaxed max-w-2xl">
-                            {currentData.explanation}
+                            {insightsDisplay}
                         </p>
                     </div>
                 </div>
 
+                {/* Multi-column Analytics */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Risk Indicators */}
                     <div className="bg-[var(--color-navy)]/5 p-6 rounded-lg border border-[var(--color-navy)]/10 flex flex-col justify-between">
@@ -141,13 +155,13 @@ export default function IndiaDisasterPanel({ metrics, coords, city }: IndiaDisas
                                 Risk Indicators
                             </h4>
                             <div className="space-y-4">
-                                {Object.entries(currentData.details).map(([key, value]) => (
+                                {Object.entries(currentData?.details || {}).map(([key, value]) => (
                                     <div key={key} className="flex justify-between items-center">
                                         <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-navy)]/70">
                                             {key.replace(/_/g, ' ')}
                                         </span>
                                         <span className="text-md font-black text-[var(--color-forest)]">
-                                            {value}
+                                            {String(value)}
                                         </span>
                                     </div>
                                 ))}
