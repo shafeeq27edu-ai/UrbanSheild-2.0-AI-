@@ -80,8 +80,9 @@ export async function POST(req: Request): Promise<NextResponse<ApiResponse>> {
 
             data = {
                 urban_profile: {
-                    population_density: cityProfile.population_density / 20000, // Normalized
-                    drainage_efficiency: cityProfile.drainage_capacity_index / 100
+                    population_density: cityProfile.population_density,
+                    drainage_efficiency: cityProfile.drainage_capacity_index,
+                    impervious_surface: cityProfile.impervious_surface
                 },
                 intelligence_report: "CORE RESILIENCE MODE: Using local heuristic modeling while primary logic engine is syncing.",
                 optimal_action: cityProfile.drainage_capacity_index < 30 ? "Infrastructure Hardening" : "Dynamic Resource Deployment"
@@ -92,9 +93,10 @@ export async function POST(req: Request): Promise<NextResponse<ApiResponse>> {
             rainfall: weather?.rainfall || 0,
             temperature: weather?.temperature || 28,
             humidity: weather?.humidity || 60,
-            populationDensity: data?.urban_profile?.population_density || 0.5,
-            drainageCapacity: data?.urban_profile?.drainage_efficiency || 0.5,
-            elevationIndex: 0.5 // Default baseline
+            populationDensity: data?.urban_profile?.population_density || 4500,
+            drainageCapacity: data?.urban_profile?.drainage_efficiency || 40,
+            imperviousSurface: data?.urban_profile?.impervious_surface || 50,
+            elevationIndex: 0.5
         });
 
         return NextResponse.json({

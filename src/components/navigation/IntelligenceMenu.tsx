@@ -60,7 +60,7 @@ export default function IntelligenceMenu() {
 
             {/* Full-Screen Overlay Panel */}
             <div
-                className={`fixed inset-0 z-[9999] bg-[#f8f9fa]/95 backdrop-blur-md transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                className={`fixed inset-0 z-[9999] bg-[#f5f2eb] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col ${isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                     }`}
             >
                 {/* Boot Sequence Animation */}

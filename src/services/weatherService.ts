@@ -5,6 +5,8 @@ export interface WeatherData {
     humidity: number;
     rainfall: number;
     windspeed: number;
+    dataSource: string;
+    lastUpdated: string;
 }
 
 // Fallback values for India general baseline
@@ -12,7 +14,9 @@ const DEFAULT_WEATHER: WeatherData = {
     temperature: 28,
     humidity: 60,
     rainfall: 0,
-    windspeed: 12
+    windspeed: 12,
+    dataSource: "Fallback Baseline",
+    lastUpdated: new Date().toISOString()
 };
 
 let lastKnownWeather: WeatherData | null = null;
@@ -40,6 +44,8 @@ export const weatherService = {
                 humidity: current.relative_humidity_2m,
                 rainfall: current.precipitation || 0,
                 windspeed: current.windspeed_10m,
+                dataSource: "Open-Meteo Live API",
+                lastUpdated: new Date().toISOString()
             };
 
             lastKnownWeather = weatherData;

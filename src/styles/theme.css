@@ -100,8 +100,6 @@ h4 {
 /* Map Overlay */
 .map-info-card {
   position: absolute;
-  top: 1rem;
-  left: 1rem;
   z-index: 1000;
   background: white;
   padding: 1rem;

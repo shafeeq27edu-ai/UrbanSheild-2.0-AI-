@@ -38,6 +38,12 @@ export default function UrbanMap({ center, riskLevel, onMapClick }: UrbanMapProp
         return "green";
     };
 
+    const onMapClickRef = useRef(onMapClick);
+
+    useEffect(() => {
+        onMapClickRef.current = onMapClick;
+    }, [onMapClick]);
+
     // Initialize map purely on client
     useEffect(() => {
         if (typeof window === "undefined" || !mapRef.current || !isMounted) return;
@@ -74,10 +80,12 @@ export default function UrbanMap({ center, riskLevel, onMapClick }: UrbanMapProp
                 // Initialize size correctly
                 setTimeout(() => { map.invalidateSize(); }, 200);
 
-                // Add click listener
+                // Add click listener using ref to avoid stale closure
                 map.on('click', (e: any) => {
                     const { lat, lng } = e.latlng;
-                    onMapClick(lat, lng);
+                    if (onMapClickRef.current) {
+                        onMapClickRef.current(lat, lng);
+                    }
                 });
 
                 // Initial marker
@@ -98,6 +106,7 @@ export default function UrbanMap({ center, riskLevel, onMapClick }: UrbanMapProp
         return () => {
             active = false;
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isMounted]);
 
     // Separate cleanup effect
@@ -162,18 +171,18 @@ export default function UrbanMap({ center, riskLevel, onMapClick }: UrbanMapProp
             <div ref={mapRef} className="w-full h-full min-h-[500px] z-0" />
 
             {/* Live Telemetry Timestamp */}
-            <div className="absolute top-4 left-4 z-[400] bg-white/90 border-2 border-[var(--color-navy)] px-3 py-1 text-[10px] font-black uppercase tracking-widest text-[var(--color-navy)] shadow-[4px_4px_0px_rgba(0,0,0,0.1)]">
-                <span className="animate-pulse text-red-600 mr-2">● Live</span>
+            <div className="map-info-card top-4 left-4 whitespace-nowrap">
+                <span className="animate-pulse text-red-600 mr-2">● LIVE</span>
                 {time || "SYNCING..."}
             </div>
 
             {/* Risk Gradient Legend */}
-            <div className="absolute bottom-6 right-4 z-[400] bg-white/90 border-2 border-[var(--color-navy)] p-3 text-[9px] font-black uppercase tracking-widest text-[var(--color-navy)] shadow-[6px_6px_0px_rgba(0,0,0,0.1)]">
-                <div className="mb-2 border-b border-[var(--color-navy)]/20 pb-1">Impact Radius</div>
-                <div className="flex flex-col gap-1.5">
-                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-red-500 rounded-full border border-black/20"></div> Critical</div>
-                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-orange-500 rounded-full border border-black/20"></div> Elevated</div>
-                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-500 rounded-full border border-black/20"></div> Stable</div>
+            <div className="map-info-card bottom-6 right-4 w-[220px] max-w-[240px]">
+                <div className="mb-2 border-b border-[var(--color-navy)]/20 pb-1 text-[10px] font-black uppercase tracking-widest">Global Risk Matrix</div>
+                <div className="flex flex-col gap-1.5 text-[9px] font-bold uppercase tracking-widest">
+                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-red-600 rounded-full border border-black/20"></div> CRITICAL</div>
+                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-orange-500 rounded-full border border-black/20"></div> ELEVATED</div>
+                    <div className="flex items-center gap-2"><div className="w-3 h-3 bg-green-600 rounded-full border border-black/20"></div> STABLE</div>
                 </div>
             </div>
         </div>

@@ -1,4 +1,5 @@
 import { FeatureCollection, Point } from 'geojson';
+import { CITIES } from './cityProfiles';
 
 export interface RiskOutput {
     score: number;
@@ -31,6 +32,7 @@ export function calculateRiskMetrics(inputs: {
     humidity: number;
     populationDensity: number;
     drainageCapacity: number;
+    imperviousSurface?: number;
     elevationIndex?: number;
     infrastructureStrength?: number;
 }): PredictionResults {
@@ -38,16 +40,21 @@ export function calculateRiskMetrics(inputs: {
     const temp = inputs.temperature;
     const humidity = inputs.humidity;
     const drainage = inputs.drainageCapacity;
-    const elev = inputs.elevationIndex ?? 0.5;
     const popDensity = inputs.populationDensity;
+    const impervious = inputs.imperviousSurface ?? 50; // Default baseline
 
-    // 1. Adaptive Flood Score (Sigmoid-like growth)
-    const rainFactor = (rainfall / 300) * 40;
-    const rainPenalty = Math.min(Math.max(0, (rainfall - 120) * 0.15), 25);
-    const drainagePenalty = (100 - drainage) * 0.2;
-    const elevationPenalty = (1 - elev) * 10;
+    // 1. Defensible Flood Score (Standardized Formula)
+    // rainScore: normalized mm to 0-100 (cap at 300mm)
+    const rainScore = Math.min(100, (rainfall / 300) * 100);
+    // drainageStress: 0-100 (inverting drainage capacity)
+    const drainageStress = 100 - (drainage <= 1 ? drainage * 100 : drainage);
+    // densityScore: normalized to 0-100 (cap at 25k)
+    const densityScore = Math.min(100, (popDensity / 25000) * 100);
+    const imperviousScore = impervious;
 
-    let flood_risk_index = Math.min(100, rainFactor + rainPenalty + drainagePenalty + elevationPenalty);
+    // Formula: 0.4 rainfall + 0.2 drainage + 0.2 density + 0.2 impervious
+    let flood_risk_index = (rainScore * 0.4) + (drainageStress * 0.2) + (densityScore * 0.2) + (imperviousScore * 0.2);
+    flood_risk_index = Math.min(100, Math.max(0, flood_risk_index));
 
     // 2. Heat Risk Index (Wet Bulb approximated)
     const tempFactor = ((temp - 15) / 35) * 45;
@@ -71,8 +78,18 @@ export function calculateRiskMetrics(inputs: {
     else if (compound_risk_index > 65) risk_category = 'High';
     else if (compound_risk_index > 35) risk_category = 'Moderate';
 
-    // Model Confidence (Approximate certainty based on metric alignment)
-    const model_confidence = 94.5 - (Math.abs(flood_risk_index - heat_risk_index) * 0.05);
+    // Uncertainty Estimation
+    const baseConfidence = 96.0;
+
+    // Penalize if optional precise metrics like elevation are missing (using defaults)
+    const missingDataPenalty = (!inputs.elevationIndex || !inputs.infrastructureStrength) ? 8.5 : 0;
+
+    // Weather variability penalty (extreme weather is inherently harder to predict with high confidence)
+    const weatherUncertaintyPenalty = (rainfall > 200 || temp > 40) ? 12.0 : (rainfall > 100 || temp > 35) ? 4.5 : 0.0;
+
+    const modelVariance = Math.abs(flood_risk_index - heat_risk_index) * 0.03;
+
+    const model_confidence = Math.max(10.0, baseConfidence - missingDataPenalty - weatherUncertaintyPenalty - modelVariance);
 
     return {
         flood_risk_index: Math.round(flood_risk_index),
@@ -242,49 +259,35 @@ export function applyScenarioAdjustment(
 /**
  * Generates synthetic urban zones with risk data for mapping.
  */
-export const generateSyntheticZones = (): FeatureCollection<Point> => {
+export const generateSyntheticZones = (cityName?: string): FeatureCollection<Point> => {
+    const city = (cityName && CITIES[cityName]) ? CITIES[cityName] : CITIES['Bengaluru'];
+    const neighborhoods = city?.neighborhoods || ['Zone 1', 'Zone 2', 'Zone 3', 'Zone 4', 'Zone 5', 'Zone 6'];
+
+    const features = neighborhoods.map((name, index) => {
+        const angle = (index / neighborhoods.length) * Math.PI * 2;
+        const radius = 0.02 + (index % 3) * 0.03; // Dynamic offset
+
+        const latOffset = Math.sin(angle) * radius;
+        const lonOffset = Math.cos(angle) * radius;
+
+        return {
+            type: 'Feature' as const,
+            properties: { id: `Z${index + 1}`, risk: 0.1 + (index % 5) * 0.15, name },
+            geometry: { type: 'Point' as const, coordinates: [city.lon + lonOffset, city.lat + latOffset] }
+        };
+    });
+
     return {
         type: 'FeatureCollection',
-        features: [
-            {
-                type: 'Feature',
-                properties: { id: 'Z1', risk: 0.6, name: 'Downtown Core' },
-                geometry: { type: 'Point', coordinates: [-74.006, 40.7128] }
-            },
-            {
-                type: 'Feature',
-                properties: { id: 'Z2', risk: 0.3, name: 'Industrial East' },
-                geometry: { type: 'Point', coordinates: [-73.986, 40.7228] }
-            },
-            {
-                type: 'Feature',
-                properties: { id: 'Z3', risk: 0.8, name: 'Waterfront West' },
-                geometry: { type: 'Point', coordinates: [-74.020, 40.7028] }
-            },
-            {
-                type: 'Feature',
-                properties: { id: 'Z4', risk: 0.2, name: 'Uptown Residential' },
-                geometry: { type: 'Point', coordinates: [-73.966, 40.7828] }
-            },
-            {
-                type: 'Feature',
-                properties: { id: 'Z5', risk: 0.5, name: 'Tech Park South' },
-                geometry: { type: 'Point', coordinates: [-74.010, 40.6928] }
-            },
-            {
-                type: 'Feature',
-                properties: { id: 'Z6', risk: 0.1, name: 'Greenway Outskirts' },
-                geometry: { type: 'Point', coordinates: [-73.950, 40.7928] }
-            }
-        ]
+        features
     };
 };
 
 export const INITIAL_ZONES: ZoneData[] = [
-    { id: 'Z1', name: 'Downtown Core', rainfall_mm: 80, temperature_c: 32, humidity_percent: 65, drainage_index: 0.1, elevation_index: 0.1, soil_absorption: 0.1, population_density_index: 0.9, urban_heat_index: 0.8 },
-    { id: 'Z2', name: 'Industrial East', rainfall_mm: 75, temperature_c: 34, humidity_percent: 60, drainage_index: 0.4, elevation_index: 0.4, soil_absorption: 0.2, population_density_index: 0.6, urban_heat_index: 0.9 },
-    { id: 'Z3', name: 'Waterfront West', rainfall_mm: 90, temperature_c: 30, humidity_percent: 75, drainage_index: 0.2, elevation_index: 0.05, soil_absorption: 0.3, population_density_index: 0.7, urban_heat_index: 0.5 },
-    { id: 'Z4', name: 'Uptown Residential', rainfall_mm: 65, temperature_c: 28, humidity_percent: 55, drainage_index: 0.8, elevation_index: 0.8, soil_absorption: 0.7, population_density_index: 0.4, urban_heat_index: 0.3 },
-    { id: 'Z5', name: 'Tech Park South', rainfall_mm: 70, temperature_c: 31, humidity_percent: 62, drainage_index: 0.6, elevation_index: 0.5, soil_absorption: 0.5, population_density_index: 0.5, urban_heat_index: 0.6 },
-    { id: 'Z6', name: 'Greenwood Buffer', rainfall_mm: 60, temperature_c: 26, humidity_percent: 50, drainage_index: 0.9, elevation_index: 0.9, soil_absorption: 0.9, population_density_index: 0.2, urban_heat_index: 0.1 }
+    { id: 'Z1', name: 'Koramangala', rainfall_mm: 80, temperature_c: 32, humidity_percent: 65, drainage_index: 0.1, elevation_index: 0.1, soil_absorption: 0.1, population_density_index: 0.9, urban_heat_index: 0.8 },
+    { id: 'Z2', name: 'Whitefield', rainfall_mm: 75, temperature_c: 34, humidity_percent: 60, drainage_index: 0.4, elevation_index: 0.4, soil_absorption: 0.2, population_density_index: 0.6, urban_heat_index: 0.9 },
+    { id: 'Z3', name: 'Bellandur', rainfall_mm: 90, temperature_c: 30, humidity_percent: 75, drainage_index: 0.2, elevation_index: 0.05, soil_absorption: 0.3, population_density_index: 0.7, urban_heat_index: 0.5 },
+    { id: 'Z4', name: 'Indiranagar', rainfall_mm: 65, temperature_c: 28, humidity_percent: 55, drainage_index: 0.8, elevation_index: 0.8, soil_absorption: 0.7, population_density_index: 0.4, urban_heat_index: 0.3 },
+    { id: 'Z5', name: 'Electronic City', rainfall_mm: 70, temperature_c: 31, humidity_percent: 62, drainage_index: 0.6, elevation_index: 0.5, soil_absorption: 0.5, population_density_index: 0.5, urban_heat_index: 0.6 },
+    { id: 'Z6', name: 'Yelahanka', rainfall_mm: 60, temperature_c: 26, humidity_percent: 50, drainage_index: 0.9, elevation_index: 0.9, soil_absorption: 0.9, population_density_index: 0.2, urban_heat_index: 0.1 }
 ];

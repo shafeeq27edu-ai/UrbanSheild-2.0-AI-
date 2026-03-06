@@ -1,4 +1,4 @@
-export type AlertLanguage = 'en' | 'hi' | 'bn' | 'ta' | 'or';
+export type AlertLanguage = 'en' | 'hi' | 'bn' | 'ta' | 'or' | 'te' | 'mr' | 'kn' | 'ml' | 'gu';
 
 export interface AlertMessage {
     langCode: AlertLanguage;
@@ -6,13 +6,14 @@ export interface AlertMessage {
     message: string;
 }
 
-const ALERT_DICTIONARY: Record<AlertLanguage, { name: string, templates: { flood: string, heat: string, compound: string } }> = {
+const ALERT_DICTIONARY: Record<AlertLanguage, { name: string, templates: { flood: string, heat: string, compound: string, evacuation: string } }> = {
     'en': {
         name: 'English',
         templates: {
             flood: "CRITICAL FLOOD WARNING: Evacuate immediately to higher ground. Follow marked escape routes.",
             heat: "EXTREME HEAT ALERT: Stay indoors, hydrate constantly. Suspend all outdoor labor.",
-            compound: "COMPOUND DISASTER EMERGENCY: Severe flooding and heatwave. Proceed to designated relief centers immediately."
+            compound: "COMPOUND DISASTER EMERGENCY: Severe flooding and heatwave. Proceed to designated relief centers immediately.",
+            evacuation: "EVACUATION ORDER: Please move to the nearest high-ground relief center. Bring only essentials."
         }
     },
     'hi': {
@@ -20,7 +21,8 @@ const ALERT_DICTIONARY: Record<AlertLanguage, { name: string, templates: { flood
         templates: {
             flood: "गंभीर बाढ़ की चेतावनी: तुरंत ऊंचे स्थानों पर जाएं। चिह्नित भागने के रास्तों का पालन करें।",
             heat: "अत्यधिक गर्मी की चेतावनी: घर के अंदर रहें, लगातार पानी पीते रहें। सभी बाहरी काम रोक दें।",
-            compound: "मिश्रित आपदा आपातकाल: गंभीर बाढ़ और लू। तुरंत निर्दिष्ट राहत केंद्रों पर जाएं।"
+            compound: "मिश्रित आपदा आपातकाल: गंभीर बाढ़ और लू। तुरंत निर्दिष्ट राहत केंद्रों पर जाएं।",
+            evacuation: "निकासी आदेश: कृपया निकटतम ऊंचे स्थान वाले राहत केंद्र पर जाएं। केवल आवश्यक वस्तुएं साथ लाएं।"
         }
     },
     'bn': {
@@ -28,7 +30,8 @@ const ALERT_DICTIONARY: Record<AlertLanguage, { name: string, templates: { flood
         templates: {
             flood: "গুরুতর বন্যা সতর্কতা: অবিলম্বে উঁচু স্থানে সরে যান। চিহ্নিত পালানোর পথ অনুসরণ করুন।",
             heat: "প্রচণ্ড গরমের সর্তকতা: ঘরে থাকুন, ক্রমাগত জল পান করুন। সমস্ত বাইরের কাজ স্থগিত করুন।",
-            compound: "যৌগিক বিপর্যয় জরুরি অবস্থা: তীব্র বন্যা এবং তাপপ্রবাহ। অবিলম্বে নির্ধারিত ত্রাণ কেন্দ্রে যান।"
+            compound: "যৌগিক বিপর্যয় জরুরি অবস্থা: তীব্র বন্যা এবং তাপপ্রবাহ। অবিলম্বে নির্ধারিত ত্রাণ কেন্দ্রে যান।",
+            evacuation: "উচ্ছেদ আদেশ: অনুগ্রহ করে নিকটতম উচ্চ-ভূমির ত্রাণ কেন্দ্রে যান। শুধুমাত্র প্রয়োজনীয় জিনিসগুলো সাথে আনুন।"
         }
     },
     'ta': {
@@ -36,7 +39,8 @@ const ALERT_DICTIONARY: Record<AlertLanguage, { name: string, templates: { flood
         templates: {
             flood: "கடும் வெள்ள எச்சரிக்கை: உடனடியாக மேடான பகுதிகளுக்கு செல்லவும். குறியிடப்பட்ட தப்பிக்கும் பாதைகளை பின்பற்றவும்.",
             heat: "கடும் வெப்ப எச்சரிக்கை: வீட்டிற்குள்ளேயே இருங்கள், தொடர்ந்து தண்ணீர் குடிக்கவும். அனைத்து வெளி வேலைகளையும் நிறுத்தவும்.",
-            compound: "கூட்டுப் பேரிடர் அவசரநிலை: கடும் வெள்ளம் மற்றும் வெப்ப அலை. உடனடியாக ஒதுக்கப்பட்ட நிவாரண மையங்களுக்குச் செல்லவும்."
+            compound: "கூட்டுப் பேரிடர் அவசரநிலை: கடும் வெள்ளம் மற்றும் வெப்ப அலை. உடனடியாக ஒதுக்கப்பட்ட நிவாரண மையங்களுக்குச் செல்லவும்.",
+            evacuation: "வெளியேற்ற உத்தரவு: தயவுசெய்து அருகிலுள்ள உயரமான இடத்திற்குச் செல்லவும். அத்தியாவசிய பொருட்களை மட்டும் கொண்டு வாருங்கள்."
         }
     },
     'or': {
@@ -44,13 +48,59 @@ const ALERT_DICTIONARY: Record<AlertLanguage, { name: string, templates: { flood
         templates: {
             flood: "ଗୁରୁତର ବନ୍ୟା ସତର୍କତା: ତୁରନ୍ତ ଉଚ୍ଚ ସ୍ଥାନକୁ ସ୍ଥାନାନ୍ତର ହୁଅନ୍ତୁ। ଚିହ୍ନିତ ଖସିଯିବା ରାସ୍ତା ଅନୁସରଣ କରନ୍ତୁ।",
             heat: "ଅତ୍ୟଧିକ ଗରମ ସତର୍କତା: ଘରେ ରୁହନ୍ତୁ, କ୍ରମାଗତ ଭାବରେ ପାଣି ପିଅନ୍ତୁ। ସମସ୍ତ ବାହାର କାମ ବନ୍ଦ କରନ୍ତୁ।",
-            compound: "ଯୌଗିକ ବିପର୍ଯ୍ୟୟ ଜରୁରୀକାଳୀନ ପରିସ୍ଥିତି: ଗୁରୁତର ବନ୍ୟା ଏବଂ ଗ୍ରୀଷ୍ମ ପ୍ରବାହ। ତୁରନ୍ତ ନିର୍ଦ୍ଧାରିତ ରିଲିଫ୍ କେନ୍ଦ୍ରକୁ ଯାଆନ୍ତୁ।"
+            compound: "ଯୌଗିକ ବିପର୍ଯ୍ୟୟ ଜରୁରីକାଳୀନ ପରିସ୍իսଥିତି: ଗୁରୁତର ବନ୍ୟା ଏବଂ ଗ୍ରୀଷ୍ମ ପ୍ରବାହ। ତୁରନ୍ତ ନିର୍ଦ୍ଧାରିତ ରିଲିଫ୍ କେନ୍ଦ୍ରକୁ ଯାଆନ୍ତୁ।",
+            evacuation: "ସ୍ଥାନାନ୍ତର ଆଦେଶ: ଦୟାକରି ନିକଟତମ ଉଚ୍ଚସ୍ଥାନର ରିଲିଫ୍ କେନ୍ଦ୍ରକୁ ଯାଆନ୍ତୁ | କେବଳ ଅତ୍ୟାବଶ୍ୟକ ଜିନିଷ ଆଣନ୍ତୁ |"
+        }
+    },
+    'te': {
+        name: 'Telugu (తెలుగు)',
+        templates: {
+            flood: "తీవ్ర వరద హెచ్చరిక: వెంటనే ఎత్తైన ప్రదేశాలకు వెళ్లండి. సూచించిన మార్గాలను అనుసరించండి.",
+            heat: "తీవ్ర వేడి హెచ్చరిక: ఇంట్లోనే ఉండండి, ద్రవాలు తాగుతూ ఉండండి. బయటి పనులను ఆపివేయండి.",
+            compound: "ఉమ్మడి విపత్తు అత్యవసర స్థితి: తీవ్రమైన వరదలు మరియు వడగాల్పులు. వెంటనే సహాయ కేంద్రాలకు వెళ్లండి.",
+            evacuation: "తరలింపు ఉత్తర్వు: దయచేసి సమీపంలోని ఎత్తైన సహాయ కేంద్రానికి వెళ్లండి. కేవలం అవసరమైన సామాగ్రిని మాత్రమే తీసుకురండి."
+        }
+    },
+    'mr': {
+        name: 'Marathi (मराठी)',
+        templates: {
+            flood: "गंभीर पूर इशारा: त्वरित उंच जागेवर जा. दिलेल्या मार्गांचा वापर करा.",
+            heat: "उष्णतेची लाट इशारा: घरातच राहा, सतत पाणी प्या. बाहेरची कामे थांबवा.",
+            compound: "संयुक्त आपत्ती आणीबाणी: गंभीर पूर आणि उष्णतेची लाट. त्वरित मदत केंद्रांवर जा.",
+            evacuation: "स्थળાંતर आदेश: कृपया जवळच्या उंचावरील मदत केंद्रावर जा. फक्त अत्यावश्यक वस्तू सोबत आणा."
+        }
+    },
+    'kn': {
+        name: 'Kannada (ಕನ್ನಡ)',
+        templates: {
+            flood: "ತೀವ್ರ ಪ್ರವಾಹ ಎಚ್ಚರಿಕೆ: ತಕ್ಷಣ ಎತ್ತರದ ಪ್ರದೇಶಗಳಿಗೆ ತೆರಳಿ. ಸೂಚಿತ ಮಾರ್ಗಗಳನ್ನು ಅನುಸರಿಸಿ.",
+            heat: "ತೀವ್ರ ತಾಪಮಾನ ಎಚ್ಚರಿಕೆ: ಮನೆಯಲ್ಲೇ ಇರಿ, ನಿರಂತರವಾಗಿ ನೀರು ಕುಡಿಯಿರಿ. ಹೊರಗಿನ ಕೆಲಸಗಳನ್ನು ನಿಲ್ಲಿಸಿ.",
+            compound: "ಸಂಯೋಜಿತ ವಿಪತ್ತು ತುರ್ತುಸ್ಥಿತಿ: ತೀವ್ರ ಪ್ರವಾಹ ಮತ್ತು ಬಿಸಿಗಾಳಿ. ತಕ್ಷಣ ಪರಿಹಾರ ಕೇಂದ್ರಗಳಿಗೆ ತೆರಳಿ.",
+            evacuation: "ಸ್ಥಳಾಂತರ ಆದೇಶ: ದಯವಿಟ್ಟು ಹತ್ತಿರದ ಎತ್ತರದ ಪ್ರದೇಶದ ಪರಿಹಾರ ಕೇಂದ್ರಕ್ಕೆ ತೆರಳಿ. ಕೇವಲ ಅಗತ್ಯ ವಸ್ತುಗಳನ್ನು ಮಾತ್ರ ತನ್ನಿ."
+        }
+    },
+    'ml': {
+        name: 'Malayalam (മലയാളം)',
+        templates: {
+            flood: "ഗുരുതരമായ പ്രളയ മുന്നറിയിപ്പ്: ഉടനടി സുരക്ഷിത സ്ഥാനത്തേക്ക് മാറുക. നിർദ്ദേശിച്ച വഴികൾ ഉപയോഗിക്കുക.",
+            heat: "കടുത്ത ചൂട് മുന്നറിയിപ്പ്: വീടിനുള്ളിൽ തുടരുക, ധാരാളം വെള്ളം കുടിക്കുക. പുറത്തെ ജോലികൾ നിർത്തിവയ്ക്കുക.",
+            compound: "സംയോജിത ദുരന്ത അടിയന്തരാവസ്ഥ: കനത്ത വെള്ളപ്പൊക്കവും ഉഷ്ണതരംഗവും. ഉടൻ ദുരിതാശ്വാസ കേന്ദ്രങ്ങളിലേക്ക് മാറുക.",
+            evacuation: "മാറിതാമസിക്കാനുള്ള നിർദ്ദേശം: ദയവായി അടുത്തുള്ള ഉയർന്ന ഉന്നത ദുരിതാശ്വാസ കേന്ദ്രത്തിലേക്ക് മാറുക. അത്യാവശ്യ സാധനങ്ങൾ മാത്രം കരുതുക."
+        }
+    },
+    'gu': {
+        name: 'Gujarati (ગુજરાતી)',
+        templates: {
+            flood: "ગંભીર પૂર ચેતવણી: તાત્કાલિક ઉંચા સ્થાનો પર જાઓ. નિર્ધારિત માર્ગોનો ઉપયોગ કરો.",
+            heat: "આત્યંતિક ગરમીની ચેતવણી: ઘરની અંદર રહો, સતત પાણી પીતા રહો. બહારના કામ બંધ કરો.",
+            compound: "સંયુક્ત આપત્તિ કટોકટી: ગંભીર પૂર અને ગરમીનું મોજું. તાત્કાલિક રાહત કેન્દ્રો પર જાઓ.",
+            evacuation: "સ્થળાંતર ઓર્ડર: કૃપા કરીને નજીકના ઉંચા મેદાનના રાહત કેન્દ્ર પર જાઓ. માત્ર આવશ્યક વસ્તુઓ જ લાવો."
         }
     }
 };
 
-export function generateLocalizedAlerts(riskType: 'flood' | 'heat' | 'compound'): AlertMessage[] {
-    const languages: AlertLanguage[] = ['hi', 'bn', 'or', 'ta']; // Focus on Indian regional languages
+export function generateLocalizedAlerts(riskType: 'flood' | 'heat' | 'compound' | 'evacuation'): AlertMessage[] {
+    const languages: AlertLanguage[] = ['hi', 'bn', 'or', 'ta', 'te', 'mr', 'kn', 'ml', 'gu']; // Focus on Indian regional languages
 
     return languages.map(lang => ({
         langCode: lang,

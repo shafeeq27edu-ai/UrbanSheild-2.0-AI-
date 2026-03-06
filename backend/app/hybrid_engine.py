@@ -29,14 +29,23 @@ def check_ood(rainfall, temp):
         warnings.append("Input outside trained range (Temperature > 55°C). Confidence reduced.")
     return " | ".join(warnings) if warnings else None
 
-def hybrid_flood_model(rainfall, drainage_pct, humidity):
+def hybrid_flood_model(rainfall, drainage_pct, humidity, pop_density=5000, green_cover=20):
     """
     Hybrid logic: Rule-based (Rainfall Pressure) + XGBoost ML Prediction.
     """
-    # 1. Physically Grounded Component: Rainfall Pressure Ratio
-    drainage_ratio = drainage_pct / 100.0 if drainage_pct > 0 else 0.01
-    rainfall_pressure = rainfall / drainage_ratio
-    rule_score = min(rainfall_pressure * 0.4, 100)
+    # 1. Physically Grounded Component: Deterministic Formula
+    impervious_surface = max(0, 100 - green_cover)
+    rain_factor = min(rainfall / 250.0, 1.0) * 100  # Cap at 250mm baseline
+    pop_score = min(pop_density / 20000.0, 1.0) * 100 # Cap at 20000 pop density
+    drainage_stress = max(0, 100 - drainage_pct)
+
+    rule_score = (
+        (0.4 * rain_factor) +
+        (0.2 * drainage_stress) +
+        (0.2 * pop_score) +
+        (0.2 * impervious_surface)
+    )
+    rule_score = min(max(rule_score, 0), 100)
 
     # 2. ML Component (Pattern recognition)
     if flood_model:

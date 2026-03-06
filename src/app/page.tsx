@@ -113,7 +113,7 @@ export default function Home() {
                         key="entry"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        exit={{ opacity: 0, scale: 1.02 }}
+                        exit={{ opacity: 0 }}
                         className="flex-1 flex flex-col items-center justify-center p-8 text-center"
                     >
                         <div className="civic-card max-w-2xl p-12 border-2 border-[var(--color-navy)] flex flex-col items-center gap-8 shadow-[12px_12px_0px_var(--color-navy)]">
@@ -138,7 +138,7 @@ export default function Home() {
                         className="flex flex-col flex-1"
                     >
                         <div className="page-wrapper relative">
-                            <div className="w-full bg-[var(--color-navy)] text-white text-[10px] font-black tracking-widest uppercase p-1 flex justify-between items-center px-4">
+                            <div className="w-full bg-[var(--color-navy)] text-highlight text-[10px] font-black tracking-widest uppercase p-1 flex justify-between items-center px-4 font-space">
                                 <span className={!error && displayMetrics ? "text-green-400" : "text-slate-400"}>
                                     ● {t.ui_telemetry} ACTIVE
                                 </span>
@@ -147,7 +147,7 @@ export default function Home() {
                                     <select
                                         value={language}
                                         onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
-                                        className="bg-transparent border-none text-white focus:outline-none cursor-pointer hover:text-[var(--color-accent)] transition-colors"
+                                        className="bg-transparent border-none text-highlight focus:outline-none cursor-pointer hover:text-[var(--color-accent)] transition-colors"
                                     >
                                         <option value="en" className="bg-slate-900">ENGLISH</option>
                                         <option value="hi" className="bg-slate-900">हिन्दी (HINDI)</option>
@@ -189,7 +189,7 @@ export default function Home() {
                                                 </div>
                                             )}
                                             <div className="flex justify-between items-center border-b border-[var(--color-navy)]/5 pb-2">
-                                                <span className="text-[9px] font-black uppercase text-slate-500">{t.ui_confidence}</span>
+                                                <span className="text-[9px] font-black uppercase text-muted">{t.ui_confidence}</span>
                                                 <span className="text-sm font-black text-[var(--color-navy)]">{displayMetrics.model_confidence}%</span>
                                             </div>
                                             <div className="w-full bg-slate-200 h-1 mt-1">
@@ -198,7 +198,7 @@ export default function Home() {
                                                     style={{ width: `${displayMetrics.model_confidence}%` }}
                                                 />
                                             </div>
-                                            <div className="mt-2 text-[8px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                            <div className="mt-2 text-[8px] font-bold text-muted uppercase tracking-widest flex items-center gap-1">
                                                 <div className={`w-1 h-1 rounded-full ${displayMetrics.engine_status === "CORE_RESILIENCE" ? "bg-amber-400" : "bg-green-400"}`}></div>
                                                 {displayMetrics.engine_status === "CORE_RESILIENCE" ? "Core Resilience Fallback Active" : "Premium Intelligence Online"}
                                             </div>
@@ -265,7 +265,7 @@ export default function Home() {
                                     </span>
                                     <div className="flex-1 h-px bg-[var(--color-navy)]/5" />
                                 </div>
-                                <IndiaDisasterPanel metrics={displayMetrics} coords={selectedCoords} />
+                                <IndiaDisasterPanel metrics={displayMetrics} coords={selectedCoords} city={selectedLocation} />
                             </div>
 
                             <div className="w-full px-8 pb-16">

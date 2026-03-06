@@ -88,7 +88,9 @@ async def analyze_city(payload: AnalyzeCityPayload):
     flood_score = hybrid_flood_model(
         active_inputs["rainfall_mm"],
         active_inputs["drainage_capacity_index"],
-        active_inputs["humidity_percent"]
+        active_inputs["humidity_percent"],
+        active_inputs.get("population_density", 5000),
+        active_inputs.get("green_cover_percent", 20)
     )
 
     heat_score = hybrid_heat_model(
@@ -105,7 +107,9 @@ async def analyze_city(payload: AnalyzeCityPayload):
         future_flood = hybrid_flood_model(
             forecast_6h.get("rainfall", active_inputs["rainfall_mm"]),
             active_inputs["drainage_capacity_index"],
-            active_inputs["humidity_percent"]
+            active_inputs["humidity_percent"],
+            active_inputs.get("population_density", 5000),
+            active_inputs.get("green_cover_percent", 20)
         )
         future_heat = hybrid_heat_model(
             forecast_6h.get("temperature", active_inputs["avg_temperature_c"]),
@@ -152,10 +156,17 @@ async def analyze_city(payload: AnalyzeCityPayload):
             "lat": city_static["lat"],
             "lon": city_static["lon"],
             "data_source": weather.get("data_source", "System Hybrid"),
-            "last_updated": weather.get("last_updated", "Awaiting Telemetry")
+            "last_updated": weather.get("last_updated", "Awaiting Telemetry"),
+            "neighborhoods": city_static.get("neighborhoods", []),
+            "recommendations": city_static.get("recommendations", {})
         },
         "warning": warning_msg,
         # Backward Compat
+        "urban_profile": {
+            "population_density": city_static["population_density"],
+            "drainage_efficiency": city_static["drainage"],
+            "impervious_surface": city_static["impervious_surface"]
+        },
         "resilience_score": city_static["drainage"] * 2,
         "estimated_population_exposed": round(city_static["population_density"] * (compound_score / 100) * 10),
         "optimization_insight": {

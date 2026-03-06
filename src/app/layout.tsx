@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter, Outfit, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 import IntelligenceMenu from "@/components/navigation/IntelligenceMenu";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
+const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk" });
 
 export const metadata: Metadata = {
     title: "UrbanShield AI | Climate Risk Intelligence",
     description: "Hyper-local urban climate risk intelligence platform.",
+    manifest: "/manifest.json"
 };
 
 export default function RootLayout({
@@ -18,21 +20,21 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-            <body className={`${inter.className} min-h-screen flex flex-col`}>
+        <html lang="en" className={`${inter.variable} ${outfit.variable} ${spaceGrotesk.variable}`}>
+            <body className={`${inter.className} min-h-screen flex flex-col bg-[var(--background)] text-[var(--text-primary)] font-sans`}>
                 <IntelligenceMenu />
                 <div className="flex-1 flex flex-col fade-transition">
                     {children}
                 </div>
-                <footer className="w-full bg-[var(--color-navy)] text-white/50 border-t border-[var(--color-accent)]/30 px-6 py-2 flex justify-between items-center text-[9px] font-bold tracking-widest uppercase z-[1000] relative">
+                <footer className="w-full bg-[var(--color-navy)] text-slate-500 border-t border-slate-800/50 px-6 py-4 flex justify-between items-center text-[10px] font-bold tracking-widest uppercase z-[1000] relative font-space-grotesk">
                     <div className="flex items-center gap-3">
-                        <span className="text-white">URBANSHIELD V1.0</span>
-                        <span className="w-1 h-1 bg-white/30 rounded-full hidden sm:block"></span>
-                        <span className="hidden sm:block">CIVIC RISK INTELLIGENCE CORE</span>
+                        <span className="text-slate-300">URBANSHIELD V1.1</span>
+                        <span className="w-1 h-1 bg-slate-700 rounded-full hidden sm:block"></span>
+                        <span className="hidden sm:block text-slate-500">CIVIC RISK INTELLIGENCE CORE</span>
                     </div>
                     <div className="flex items-center gap-2">
-                        <span>SYSTEM:</span>
-                        <span className="text-[var(--color-forest)]">STABLE</span>
+                        <span className="text-slate-600">SYSTEM:</span>
+                        <span className="text-emerald-500/80">STABLE</span>
                     </div>
                 </footer>
             </body>

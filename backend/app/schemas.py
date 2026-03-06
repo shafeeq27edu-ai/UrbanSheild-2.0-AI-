@@ -51,6 +51,7 @@ class PredictionResponse(BaseModel):
     warning: Optional[str] = None
     
     # Backward compat
+    urban_profile: Optional[Dict[str, Any]] = None
     resilience_score: Optional[float] = None
     estimated_population_exposed: Optional[float] = None
     optimization_insight: Optional[Dict[str, Any]] = None

@@ -26,7 +26,7 @@ export interface DisasterScenario {
     id: string;
     title: string;
     date: string;
-    type: "Flood" | "Heatwave";
+    type: "Flood" | "Heatwave" | "Landslide" | "Monsoon Flood" | "Riverine Flood" | "Flash Flood / Coastal Accumulation";
     summary: string;
     timeline: TimelineEvent[];
 }

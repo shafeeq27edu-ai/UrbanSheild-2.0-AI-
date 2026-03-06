@@ -1,0 +1,4 @@
+src/modules/simulations/assamFlood2024.ts(7,5): error TS2322: Type '"Monsoon Flood"' is not assignable to type '"Flood" | "Heatwave"'.
+src/modules/simulations/biharFloodScenario.ts(7,5): error TS2322: Type '"Riverine Flood"' is not assignable to type '"Flood" | "Heatwave"'.
+src/modules/simulations/gujaratFlood2024.ts(7,5): error TS2322: Type '"Flash Flood / Coastal Accumulation"' is not assignable to type '"Flood" | "Heatwave"'.
+src/modules/simulations/wayanadLandslide2024.ts(7,5): error TS2322: Type '"Landslide"' is not assignable to type '"Flood" | "Heatwave"'.
