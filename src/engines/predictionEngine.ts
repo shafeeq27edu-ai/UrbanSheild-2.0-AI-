@@ -21,8 +21,9 @@ export interface PredictionResults {
 }
 
 /**
- * PHASE 4: Hybrid Disaster Scoring Model
+ * PHASE 4: Hybrid Disaster Scoring Model (Advanced Fallback Version)
  * Provides explainable indices based on environmental and urban parameters.
+ * Ported from Python UrbanRiskEngine for defensive fallback reliability.
  */
 export function calculateRiskMetrics(inputs: {
     rainfall: number;
@@ -30,38 +31,52 @@ export function calculateRiskMetrics(inputs: {
     humidity: number;
     populationDensity: number;
     drainageCapacity: number;
+    elevationIndex?: number;
+    infrastructureStrength?: number;
 }): PredictionResults {
-    // Normalization: Ensure inputs are within expected bounds for calculation
-    const rainfallFactor = Math.min(1, inputs.rainfall / 250);
-    const tempFactor = Math.min(1, Math.max(0, (inputs.temperature - 15) / 35)); // Range 15-50C
-    const humidityFactor = inputs.humidity / 100;
+    const rainfall = inputs.rainfall;
+    const temp = inputs.temperature;
+    const humidity = inputs.humidity;
+    const drainage = inputs.drainageCapacity;
+    const elev = inputs.elevationIndex ?? 0.5;
+    const popDensity = inputs.populationDensity;
 
-    // 1. Flood Risk Index (0-100)
-    // Driven by rainfall intensity (70%) and lack of drainage (30%)
-    const floodScore = (rainfallFactor * 0.7) + ((1 - inputs.drainageCapacity) * 0.3);
-    const flood_risk_index = Math.round(floodScore * 100);
+    // 1. Adaptive Flood Score (Sigmoid-like growth)
+    const rainFactor = (rainfall / 300) * 40;
+    const rainPenalty = Math.min(Math.max(0, (rainfall - 120) * 0.15), 25);
+    const drainagePenalty = (100 - drainage) * 0.2;
+    const elevationPenalty = (1 - elev) * 10;
 
-    // 2. Heat Risk Index (0-100)
-    // Driven by temperature (60%), humidity load (20%), and population density (20%)
-    const heatScore = (tempFactor * 0.6) + (humidityFactor * 0.2) + (inputs.populationDensity * 0.2);
-    const heat_risk_index = Math.round(heatScore * 100);
+    let flood_risk_index = Math.min(100, rainFactor + rainPenalty + drainagePenalty + elevationPenalty);
 
-    // 3. Compound Risk Index (0-100)
-    // Weighted synthesis reflecting overall urban pressure
-    const compound_risk_index = Math.round((flood_risk_index * 0.5) + (heat_risk_index * 0.5));
+    // 2. Heat Risk Index (Wet Bulb approximated)
+    const tempFactor = ((temp - 15) / 35) * 45;
+    const tempPenalty = Math.min(Math.max(0, (temp - 38) * 2.0), 30);
+    const humidityPenalty = Math.max(0, (humidity - 70) * 0.5);
+
+    let heat_risk_index = Math.min(100, tempFactor + tempPenalty + humidityPenalty);
+
+    // 3. Compound Interaction & Upgrade 15: Stress Synergy
+    const interactionTerm = (rainfall * temp) / 2500;
+    let compound_risk_index = (flood_risk_index * 0.55) + (heat_risk_index * 0.35) + (interactionTerm * 1.5);
+
+    if (flood_risk_index > 65 && heat_risk_index > 65) {
+        compound_risk_index += 12; // Synergy penalty
+    }
+    compound_risk_index = Math.round(Math.min(100, compound_risk_index));
 
     // Risk Categorization
     let risk_category: PredictionResults['risk_category'] = 'Low';
-    if (compound_risk_index > 75) risk_category = 'Critical';
-    else if (compound_risk_index > 50) risk_category = 'High';
-    else if (compound_risk_index > 25) risk_category = 'Moderate';
+    if (compound_risk_index > 85) risk_category = 'Critical';
+    else if (compound_risk_index > 65) risk_category = 'High';
+    else if (compound_risk_index > 35) risk_category = 'Moderate';
 
     // Model Confidence (Approximate certainty based on metric alignment)
     const model_confidence = 94.5 - (Math.abs(flood_risk_index - heat_risk_index) * 0.05);
 
     return {
-        flood_risk_index,
-        heat_risk_index,
+        flood_risk_index: Math.round(flood_risk_index),
+        heat_risk_index: Math.round(heat_risk_index),
         compound_risk_index,
         risk_category,
         model_confidence: Math.round(model_confidence * 10) / 10

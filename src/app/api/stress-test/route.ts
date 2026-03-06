@@ -35,55 +35,83 @@ export async function POST(req: Request): Promise<NextResponse<ApiResponse>> {
         // Fetch real-time weather telemetry
         const weather = await weatherService.fetchWeather(Number(lat), Number(lon));
 
-        // Forward to Python hybrid engine with real weather overrides
-        const response = await fetch("http://127.0.0.1:8001/analyze-city", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                city: cityStr,
-                overrides: {
-                    ...(lat !== undefined && { lat: Number(lat) }),
-                    ...(lon !== undefined && { lon: Number(lon) }),
-                    ...(weather && {
-                        temperature: weather.temperature,
-                        humidity: weather.humidity,
-                        rainfall: weather.rainfall,
-                        windspeed: weather.windspeed
-                    })
-                }
-            })
-        });
+        // Phase 3: External Intelligence Sync (Local Python Engine)
+        let data: any = null;
+        let isFallback = false;
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Python Engine Error: ${response.status} ${errorText}`);
+        try {
+            // Forward to Python hybrid engine with 2s timeout
+            const pythonResponse = await fetch("http://127.0.0.1:8001/analyze-city", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    city: cityStr,
+                    overrides: {
+                        ...(lat !== undefined && { lat: Number(lat) }),
+                        ...(lon !== undefined && { lon: Number(lon) }),
+                        ...(weather && {
+                            temperature: weather.temperature,
+                            humidity: weather.humidity,
+                            rainfall: weather.rainfall,
+                            windspeed: weather.windspeed
+                        })
+                    }
+                }),
+                signal: AbortSignal.timeout(2000) // Don't hang the UI
+            });
+
+            if (pythonResponse.ok) {
+                data = await pythonResponse.json();
+                logger.info("Intelligence Engine: Sequential Link Established (Python Sync)");
+            } else {
+                logger.warn(`Python Engine returned ${pythonResponse.status}. Activating internal failover.`);
+                isFallback = true;
+            }
+        } catch (err: any) {
+            logger.warn("Python Engine Unreachable. Activating Core Resilience Fallback.", err.message);
+            isFallback = true;
         }
 
-        const data = await response.json();
+        // Phase 4: Calculate standardized risk metrics (Internal or Hybrid)
+        // If Python failed, we simulate the 'data' structure using our city profiles
+        if (isFallback) {
+            const { getCityByCoords, CITIES } = await import("@/engines/cityProfiles");
+            const cityProfile = getCityByCoords(Number(lat), Number(lon)) || CITIES["Bengaluru"];
 
-        // Phase 4: Calculate standardized risk metrics for explainable categorization
+            data = {
+                urban_profile: {
+                    population_density: cityProfile.population_density / 20000, // Normalized
+                    drainage_efficiency: cityProfile.drainage_capacity_index / 100
+                },
+                intelligence_report: "CORE RESILIENCE MODE: Using local heuristic modeling while primary logic engine is syncing.",
+                optimal_action: cityProfile.drainage_capacity_index < 30 ? "Infrastructure Hardening" : "Dynamic Resource Deployment"
+            };
+        }
+
         const riskMetrics = calculateRiskMetrics({
             rainfall: weather?.rainfall || 0,
             temperature: weather?.temperature || 28,
             humidity: weather?.humidity || 60,
             populationDensity: data?.urban_profile?.population_density || 0.5,
-            drainageCapacity: data?.urban_profile?.drainage_efficiency || 0.5
+            drainageCapacity: data?.urban_profile?.drainage_efficiency || 0.5,
+            elevationIndex: 0.5 // Default baseline
         });
 
         return NextResponse.json({
             success: true,
             data: {
                 ...data,
-                ...riskMetrics
+                ...riskMetrics,
+                engine_status: isFallback ? "CORE_RESILIENCE" : "PREMIUM_INTELLIGENCE"
             },
             timestamp: new Date().toISOString(),
-            source: "urban-intelligence-core"
+            source: "urban-shield-core"
         });
 
     } catch (error: any) {
         logger.error("API error in stress-test route", error.message);
         return NextResponse.json(
-            { success: false, error: "Computation failed", code: "API_ERROR" },
+            { success: false, error: "Critical System Failure: Intelligence Downlink Severed", code: "FATAL_API_ERROR" },
             { status: 500 }
         );
     }

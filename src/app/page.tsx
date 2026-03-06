@@ -173,7 +173,12 @@ export default function Home() {
                                     )}
 
                                     {metrics && (
-                                        <div className="bg-white/50 border border-[var(--color-navy)]/10 p-4 flex flex-col gap-2">
+                                        <div className="bg-white/50 border border-[var(--color-navy)]/10 p-4 flex flex-col gap-2 relative overflow-hidden">
+                                            {metrics.engine_status === "CORE_RESILIENCE" && (
+                                                <div className="absolute top-0 right-0 bg-amber-500 text-[8px] font-black text-white px-2 py-0.5 uppercase tracking-tighter">
+                                                    Demo Mode
+                                                </div>
+                                            )}
                                             <div className="flex justify-between items-center border-b border-[var(--color-navy)]/5 pb-2">
                                                 <span className="text-[9px] font-black uppercase text-slate-500">{t.ui_confidence}</span>
                                                 <span className="text-sm font-black text-[var(--color-navy)]">{metrics.model_confidence}%</span>
@@ -183,6 +188,10 @@ export default function Home() {
                                                     className="bg-[var(--color-accent)] h-full transition-all duration-1000"
                                                     style={{ width: `${metrics.model_confidence}%` }}
                                                 />
+                                            </div>
+                                            <div className="mt-2 text-[8px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                                <div className={`w-1 h-1 rounded-full ${metrics.engine_status === "CORE_RESILIENCE" ? "bg-amber-400" : "bg-green-400"}`}></div>
+                                                {metrics.engine_status === "CORE_RESILIENCE" ? "Core Resilience Fallback Active" : "Premium Intelligence Online"}
                                             </div>
                                         </div>
                                     )}
