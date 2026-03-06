@@ -40,6 +40,7 @@ export default function IntelligenceMenu() {
         { label: "HOME", href: "/" },
         { label: "ABOUT", href: "/about" },
         { label: "INTELLIGENCE ENGINE", href: "/intelligence" },
+        { label: "INDIA INTELLIGENCE", href: "/india-intelligence" },
         { label: "CONTACT", href: "/contact" },
     ];
 
