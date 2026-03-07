@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { logger } from "@/utils/logger";
 import { ApiResponse } from "@/types";
 import { weatherService } from "@/services/weatherService";
-import { calculateRiskMetrics } from "@/engines/predictionEngine";
+import { calculateRiskMetrics, INITIAL_ZONES, calculateFloodRisk } from "@/engines/predictionEngine";
 
 export async function POST(req: Request): Promise<NextResponse<ApiResponse>> {
     try {
@@ -99,11 +99,30 @@ export async function POST(req: Request): Promise<NextResponse<ApiResponse>> {
             elevationIndex: cityProfile.elevation_index ?? 0.3
         });
 
+        // Compute dynamic ward risks server-side
+        const wardRisks = INITIAL_ZONES.map(zone => {
+            const zoneRainfall = (weather?.rainfall || 0) + zone.rainfall_mm * 0.3;
+            const floodResult = calculateFloodRisk({
+                rainfall_mm: zoneRainfall,
+                drainage_index: zone.drainage_index,
+                elevation_index: zone.elevation_index,
+                soil_absorption: zone.soil_absorption,
+                historical_flood_factor: 0.5,
+            });
+            return {
+                zone: zone.name,
+                score: Math.round(floodResult.score * 100),
+                category: floodResult.category,
+            };
+        }).sort((a, b) => b.score - a.score);
+
         return NextResponse.json({
             success: true,
             data: {
                 ...(data || {}),
                 ...(riskMetrics || {}),
+                weather: weather,
+                ward_risks: wardRisks,
                 engine_status: isFallback ? "CORE_RESILIENCE" : "PREMIUM_INTELLIGENCE"
             },
             timestamp: new Date().toISOString(),

@@ -3,7 +3,7 @@ import mediapipe as mp
 import threading
 import time
 import numpy as np
-from .config import CAMERA_WIDTH, CAMERA_HEIGHT, SMOOTHING_FACTOR, FPS
+from .config import CAMERA_WIDTH, CAMERA_HEIGHT, SMOOTHING_FACTOR, FPS, DEBUG_PREVIEW
 
 class VisionEngine:
     def __init__(self):
@@ -81,6 +81,17 @@ class VisionEngine:
                     self.index_finger_pos = None
                 
                 self.last_update_time = time.time()
+
+            if DEBUG_PREVIEW:
+                # Draw landmarks on the frame for preview
+                if results.multi_hand_landmarks:
+                    for hand_landmarks in results.multi_hand_landmarks:
+                        self.mp_draw.draw_landmarks(
+                            frame, hand_landmarks, self.mp_hands.HAND_CONNECTIONS
+                        )
+                cv2.imshow("Vision Preview", frame)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
 
             # Optional: Add small sleep to cap thread frequency if needed, 
             # but ideally it runs as fast as the camera allows.

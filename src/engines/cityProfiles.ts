@@ -14,6 +14,7 @@ export interface CityProfile {
     infrastructure_strength: number;
     emergency_response: number;
     impervious_surface: number; // 0-100% (Added for High-Fidelity Risk Calc)
+    mapZoom?: number; // Leaflet zoom level for fly-to
     neighborhoods?: string[];
 }
 
@@ -29,6 +30,7 @@ export const CITIES: Record<string, CityProfile> = {
         "infrastructure_strength": 65,
         "emergency_response": 75,
         "impervious_surface": 78,
+        "mapZoom": 13,
         "neighborhoods": ["Koramangala", "Bellandur", "Whitefield", "Indiranagar", "Yelahanka", "Electronic City"]
     },
     "Delhi": {
@@ -42,6 +44,7 @@ export const CITIES: Record<string, CityProfile> = {
         "infrastructure_strength": 72,
         "emergency_response": 85,
         "impervious_surface": 85,
+        "mapZoom": 13,
         "neighborhoods": ["Connaught Place", "Rohini", "Dwarka", "Vasant Kunj", "Karol Bagh", "Lajpat Nagar"]
     },
     "Mumbai": {
@@ -55,6 +58,7 @@ export const CITIES: Record<string, CityProfile> = {
         "infrastructure_strength": 60,
         "emergency_response": 70,
         "impervious_surface": 90,
+        "mapZoom": 13,
         "neighborhoods": ["Andheri", "Bandra", "Colaba", "Dharavi", "Juhu", "Powai"]
     },
     "Chennai": {
@@ -68,6 +72,7 @@ export const CITIES: Record<string, CityProfile> = {
         "infrastructure_strength": 68,
         "emergency_response": 78,
         "impervious_surface": 82,
+        "mapZoom": 12,
         "neighborhoods": ["T. Nagar", "Adyar", "Velachery", "Anna Nagar", "Mylapore", "Tambaram"]
     },
     "Hyderabad": {
@@ -93,7 +98,8 @@ export const CITIES: Record<string, CityProfile> = {
         "green_cover_percent": 22,
         "infrastructure_strength": 55,
         "emergency_response": 60,
-        "impervious_surface": 65
+        "impervious_surface": 65,
+        "mapZoom": 12
     },
     "Guwahati": {
         "name": "Guwahati Brahmaputra",
@@ -105,7 +111,8 @@ export const CITIES: Record<string, CityProfile> = {
         "green_cover_percent": 25,
         "infrastructure_strength": 50,
         "emergency_response": 58,
-        "impervious_surface": 60
+        "impervious_surface": 60,
+        "mapZoom": 11
     },
     "Kolkata": {
         "name": "Kolkata Delta",
@@ -117,7 +124,8 @@ export const CITIES: Record<string, CityProfile> = {
         "green_cover_percent": 16,
         "infrastructure_strength": 65,
         "emergency_response": 72,
-        "impervious_surface": 88
+        "impervious_surface": 88,
+        "mapZoom": 12
     },
     "Ahmedabad": {
         "name": "Ahmedabad Urban",
@@ -141,7 +149,8 @@ export const CITIES: Record<string, CityProfile> = {
         "green_cover_percent": 10,
         "infrastructure_strength": 68,
         "emergency_response": 75,
-        "impervious_surface": 80
+        "impervious_surface": 80,
+        "mapZoom": 12
     },
     "Wayanad": {
         "name": "Wayanad Highlands",
@@ -153,7 +162,8 @@ export const CITIES: Record<string, CityProfile> = {
         "green_cover_percent": 65,
         "infrastructure_strength": 40,
         "emergency_response": 50,
-        "impervious_surface": 35
+        "impervious_surface": 35,
+        "mapZoom": 11
     },
     "Kozhikode": {
         "name": "Kozhikode Coastal",

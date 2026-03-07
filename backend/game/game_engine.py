@@ -133,9 +133,13 @@ class GameEngine:
             for obj in self.objects:
                 if isinstance(obj, Fruit):
                     pygame.draw.circle(self.screen, COLOR_RED, obj.get_pos(), obj.radius)
+                    if DEBUG_MODE:
+                        pygame.draw.circle(self.screen, COLOR_WHITE, obj.get_pos(), obj.radius, 1) # Hitbox
                 elif isinstance(obj, Bomb):
                     pygame.draw.circle(self.screen, COLOR_YELLOW, obj.get_pos(), obj.radius)
                     pygame.draw.circle(self.screen, COLOR_BLACK, obj.get_pos(), obj.radius - 5)
+                    if DEBUG_MODE:
+                        pygame.draw.circle(self.screen, COLOR_WHITE, obj.get_pos(), obj.radius, 1) # Hitbox
                 elif isinstance(obj, SlicedFruit):
                     # Draw semi-circles or just offset circles for now
                     pos = obj.get_pos()
@@ -151,11 +155,19 @@ class GameEngine:
                 # Inner core
                 pygame.draw.lines(self.screen, COLOR_BLADE, False, self.blade_trail, 4)
                 
+                if DEBUG_MODE:
+                    for i in range(len(self.blade_trail) - 1):
+                        pygame.draw.line(self.screen, COLOR_WHITE, self.blade_trail[i], self.blade_trail[i+1], 1)
+                
             # Draw UI
             self.draw_text(f"Score: {self.score}", self.font, COLOR_WHITE, (100, 50))
             self.draw_text(f"Lives: {self.lives}", self.font, COLOR_RED, (SCREEN_WIDTH - 100, 50))
             if self.combo_count >= 2:
                 self.draw_text(f"COMBO X{self.combo_count}!", self.font, COLOR_YELLOW, (SCREEN_WIDTH//2, 50))
+            
+            if DEBUG_MODE:
+                self.draw_text(f"FPS: {int(self.clock.get_fps())}", self.font, COLOR_GREEN, (SCREEN_WIDTH//2, SCREEN_HEIGHT - 30))
+                self.draw_text(f"Objects: {len(self.objects)}", self.font, COLOR_GREEN, (100, SCREEN_HEIGHT - 30))
             
         elif self.state == GameState.GAME_OVER:
             # Styled Game Over Screen

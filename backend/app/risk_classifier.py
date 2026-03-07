@@ -1,13 +1,13 @@
 def classify_risk(score: float) -> str:
     """Standard risk labeling logic."""
-    if score < 30:
-        return "Low"
-    elif score < 60:
-        return "Moderate"
-    elif score < 80:
-        return "High"
-    else:
+    if score >= 62:
         return "Critical"
+    elif score >= 38:
+        return "High"
+    elif score >= 24:
+        return "Moderate"
+    else:
+        return "Low"
 
 def calculate_risk_velocity(current_score: float, previous_score: float = None) -> str:
     """Measures delta in risk intensity."""

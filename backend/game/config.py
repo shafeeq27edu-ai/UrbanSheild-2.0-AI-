@@ -48,3 +48,6 @@ class GameState:
     READY = "READY"
     PLAYING = "PLAYING"
     GAME_OVER = "GAME_OVER"
+# Debugging and Exploration
+DEBUG_PREVIEW = True        # Show vision module preview window
+DEBUG_MODE = True           # Show hitboxes and FPS in game
