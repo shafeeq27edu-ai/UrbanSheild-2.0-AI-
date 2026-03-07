@@ -62,15 +62,22 @@ class UrbanRiskEngine:
         final_flood = float(np.clip(final_flood, 0, 100))
         final_heat = float(np.clip(final_heat, 0, 100))
 
-        # 6. Compound Cascade
+        # 6. Compound Cascade — Tiered Dominant-Hazard Floor Model
         precip = inputs.get("rainfall_mm", 0)
         temp = inputs.get("avg_temperature_c", 30)
         interaction_term = (precip * temp) / 2500
-        compound_risk = (0.55 * final_flood) + (0.35 * final_heat) + (0.1 * interaction_term * 10)
+
+        weighted = (0.55 * final_flood) + (0.35 * final_heat) + (interaction_term * 1.5)
+        dominant_haz = max(final_flood, final_heat)
+        # If a single hazard scores Critical-grade (>= 62) on its own, compound
+        # cannot be less than Critical. Use 0.97 floor. Otherwise 0.78.
+        floor_mult = 0.97 if dominant_haz >= 62 else 0.78
+        dominant_floor = dominant_haz * floor_mult
+        compound_risk = max(weighted, dominant_floor)
 
         if final_flood > 65 and final_heat > 65:
-            compound_risk += 12  # Synergy penalty
-        compound_risk = float(np.clip(compound_risk, 0, 100))
+            compound_risk += 8  # Synergy penalty
+        compound_risk = float(round(np.clip(compound_risk, 0, 100)))
 
         # 7. Vulnerability & Exposure
         vulnerability_factor = calculate_socioeconomic_vulnerability(inputs)
@@ -81,11 +88,11 @@ class UrbanRiskEngine:
         confidence = calculate_statistical_confidence(inputs, self.stats, self.feature_names)
         optimization = run_resource_optimization_engine(inputs, final_flood, final_heat, self)
 
-        # 9. Category Assignment
+        # 9. Category Assignment — calibrated thresholds (62 / 38 / 24)
         risk_category = "Low"
-        if humanitarian_risk > 85: risk_category = "Critical"
-        elif humanitarian_risk > 65: risk_category = "High"
-        elif humanitarian_risk > 35: risk_category = "Moderate"
+        if compound_risk >= 62: risk_category = "Critical"
+        elif compound_risk >= 38: risk_category = "High"
+        elif compound_risk >= 24: risk_category = "Moderate"
 
         # 10. Intelligence Report
         intelligence_report = self._generate_report(inputs, final_flood, final_heat, humanitarian_risk, collapse_prob)

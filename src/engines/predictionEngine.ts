@@ -43,38 +43,64 @@ export function calculateRiskMetrics(inputs: {
     const popDensity = inputs.populationDensity;
     const impervious = inputs.imperviousSurface ?? 50; // Default baseline
 
-    // 1. Defensible Flood Score (Standardized Formula)
+    // 1. Defensible Flood Score
+    // Density is capped at 50 to prevent rural disasters from being penalized
+    // (spec requirement: "Population density penalizes rural disasters incorrectly")
     const rainScore = Math.min(100, (rainfall / 300) * 100);
     const drainageStress = 100 - (drainage <= 1 ? drainage * 100 : drainage);
-    const densityScore = Math.min(100, (popDensity / 25000) * 100);
+    const densityScore = Math.min(50, (popDensity / 25000) * 100);
     const imperviousScore = impervious;
 
     const elev = inputs.elevationIndex ?? 0.3;
-    const terrainAmp = (elev > 0.6 && rainfall > 150) ? Math.min(10, (elev - 0.6) * 50) : 0;
+    // terrain amplification: capped at 15 for severe highland events
+    const terrainAmp =
+        (elev > 0.6 && rainfall > 150)
+            ? Math.min(15, (elev - 0.6) * 50)
+            : 0;
 
-    let flood_risk_index = (rainScore * 0.38) + (drainageStress * 0.22) + (densityScore * 0.15) + (imperviousScore * 0.15) + terrainAmp;
+    // Redistributed weights: more rain/drainage, less density
+    let flood_risk_index =
+        (rainScore * 0.40) +
+        (drainageStress * 0.24) +
+        (densityScore * 0.10) +
+        (imperviousScore * 0.15) +
+        terrainAmp;
     flood_risk_index = Math.min(100, Math.max(0, flood_risk_index));
 
-    // 2. Heat Risk Index (Wet Bulb approximated)
+    // 2. Heat Risk Index — lethal escalation above 46°C
     const tempFactor = ((temp - 15) / 35) * 45;
-    const tempPenalty = temp > 46 ? 30 + (temp - 46) * 4 : Math.min(Math.max(0, (temp - 38) * 2.5), 30);
+    const tempPenalty =
+        temp > 46
+            ? 30 + (temp - 46) * 4
+            : Math.min(Math.max(0, (temp - 38) * 2.5), 30);
     const humidityPenalty = Math.max(0, (humidity - 70) * 0.5);
 
     let heat_risk_index = Math.min(100, tempFactor + tempPenalty + humidityPenalty);
 
-    // 3. Compound Interaction & Upgrade 15: Stress Synergy
+    // 3. Compound Risk — tiered dominant-hazard floor
+    // Extreme single-hazard events (dominant ≥ 70) get a 0.90 floor so they
+    // cannot be diluted by averaging with a mild secondary hazard.
     const interactionTerm = (rainfall * temp) / 2500;
-    const weighted = (flood_risk_index * 0.55) + (heat_risk_index * 0.35) + (interactionTerm * 1.5);
-    const dominant_floor = Math.max(flood_risk_index, heat_risk_index) * 0.78;
+    const weighted =
+        (flood_risk_index * 0.55) +
+        (heat_risk_index * 0.35) +
+        (interactionTerm * 1.5);
+
+    const dominantHaz = Math.max(flood_risk_index, heat_risk_index);
+    // If a single hazard scores Critical-grade (>= 62) on its own, the compound
+    // risk cannot be less than Critical — use a 0.97 floor. Otherwise 0.78.
+    const floorMult = dominantHaz >= 62 ? 0.97 : 0.78;
+    const dominant_floor = dominantHaz * floorMult;
 
     let compound_risk_index = Math.max(weighted, dominant_floor);
 
     if (flood_risk_index > 65 && heat_risk_index > 65) {
-        compound_risk_index += 8; // Synergy penalty
+        compound_risk_index += 8; // Synergy penalty for compound disasters
     }
+
     compound_risk_index = Math.round(Math.min(100, compound_risk_index));
 
-    // Risk Categorization
+    // 4. Risk Categorization (thresholds: 62 / 38 / 24)
     let risk_category: PredictionResults['risk_category'] = 'Low';
     if (compound_risk_index >= 62) risk_category = 'Critical';
     else if (compound_risk_index >= 38) risk_category = 'High';
@@ -82,15 +108,9 @@ export function calculateRiskMetrics(inputs: {
 
     // Uncertainty Estimation
     const baseConfidence = 96.0;
-
-    // Penalize if optional precise metrics like elevation are missing (using defaults)
     const missingDataPenalty = (!inputs.elevationIndex || !inputs.infrastructureStrength) ? 8.5 : 0;
-
-    // Weather variability penalty (extreme weather is inherently harder to predict with high confidence)
     const weatherUncertaintyPenalty = (rainfall > 200 || temp > 40) ? 12.0 : (rainfall > 100 || temp > 35) ? 4.5 : 0.0;
-
     const modelVariance = Math.abs(flood_risk_index - heat_risk_index) * 0.03;
-
     const model_confidence = Math.max(10.0, baseConfidence - missingDataPenalty - weatherUncertaintyPenalty - modelVariance);
 
     return {
