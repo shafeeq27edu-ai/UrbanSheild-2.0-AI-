@@ -99,7 +99,8 @@ export const CITIES: Record<string, CityProfile> = {
         "infrastructure_strength": 55,
         "emergency_response": 60,
         "impervious_surface": 65,
-        "mapZoom": 12
+        "mapZoom": 12,
+        "neighborhoods": ["Kankarbagh", "Rajendra Nagar", "Boring Road", "Patliputra Colony", "Danapur", "Phulwari Sharif"]
     },
     "Guwahati": {
         "name": "Guwahati Brahmaputra",
@@ -112,7 +113,8 @@ export const CITIES: Record<string, CityProfile> = {
         "infrastructure_strength": 50,
         "emergency_response": 58,
         "impervious_surface": 60,
-        "mapZoom": 11
+        "mapZoom": 11,
+        "neighborhoods": ["Paltan Bazaar", "Dispur", "Jalukbari", "Noonmati", "Beltola", "Ganeshguri"]
     },
     "Kolkata": {
         "name": "Kolkata Delta",
@@ -125,7 +127,8 @@ export const CITIES: Record<string, CityProfile> = {
         "infrastructure_strength": 65,
         "emergency_response": 72,
         "impervious_surface": 88,
-        "mapZoom": 12
+        "mapZoom": 12,
+        "neighborhoods": ["Salt Lake", "Park Street", "Howrah", "Dum Dum", "Behala", "Tollygunge"]
     },
     "Ahmedabad": {
         "name": "Ahmedabad Urban",
@@ -137,7 +140,9 @@ export const CITIES: Record<string, CityProfile> = {
         "green_cover_percent": 12,
         "infrastructure_strength": 70,
         "emergency_response": 78,
-        "impervious_surface": 75
+        "impervious_surface": 75,
+        "mapZoom": 12,
+        "neighborhoods": ["Navrangpura", "Vastrapur", "Satellite", "Bopal", "Maninagar", "Chandkheda"]
     },
     "Surat": {
         "name": "Surat Coastal",
@@ -150,7 +155,8 @@ export const CITIES: Record<string, CityProfile> = {
         "infrastructure_strength": 68,
         "emergency_response": 75,
         "impervious_surface": 80,
-        "mapZoom": 12
+        "mapZoom": 12,
+        "neighborhoods": ["Adajan", "Vesu", "Katargam", "Udhna", "Piplod", "Althan"]
     },
     "Wayanad": {
         "name": "Wayanad Highlands",
@@ -163,7 +169,8 @@ export const CITIES: Record<string, CityProfile> = {
         "infrastructure_strength": 40,
         "emergency_response": 50,
         "impervious_surface": 35,
-        "mapZoom": 11
+        "mapZoom": 11,
+        "neighborhoods": ["Kalpetta", "Mananthavady", "Sulthan Bathery", "Meppadi", "Vythiri", "Ambalavayal"]
     },
     "Kozhikode": {
         "name": "Kozhikode Coastal",

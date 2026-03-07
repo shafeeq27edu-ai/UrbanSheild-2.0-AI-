@@ -70,7 +70,7 @@ const Header: React.FC<HeaderProps> = ({ selectedCity, onCityChange, overallRisk
                 </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 pr-14">
                 <div className="hidden lg:flex items-center gap-2 bg-[var(--color-navy)]/5 border border-[var(--color-navy)]/10 px-3 py-1.5 rounded-sm">
                     <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
                     <span className="text-[8px] font-black uppercase tracking-widest text-[var(--color-navy)]">LIVE TELEMETRY ACTIVE</span>

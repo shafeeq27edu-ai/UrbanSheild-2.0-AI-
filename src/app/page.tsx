@@ -296,7 +296,7 @@ export default function Home() {
                     >
                         <div className="page-wrapper relative">
                             {/* Top telemetry bar */}
-                            <div className="w-full bg-[var(--color-navy)] text-highlight text-[10px] font-black tracking-widest uppercase p-1 flex justify-between items-center px-4 font-space">
+                            <div className="w-full bg-[var(--color-navy)] text-highlight text-[10px] font-black tracking-widest uppercase p-1 flex justify-between items-center px-4 pr-16 font-space">
                                 <span className={!error && displayMetrics ? "text-green-400" : "text-slate-400"}>
                                     ● {t.ui_telemetry} ACTIVE
                                 </span>
@@ -643,8 +643,8 @@ export default function Home() {
                                         {(["LOW", "MODERATE", "CRITICAL"] as const).map(s => (
                                             <button key={s} onClick={() => setReportSeverity(s)}
                                                 className={`py-2 text-[9px] font-black border-2 transition-all uppercase tracking-wider ${reportSeverity === s
-                                                        ? "bg-[#1a2a40] text-white border-[#1a2a40]"
-                                                        : "border-[#1a2a40] text-[#1a2a40] hover:bg-[#1a2a40] hover:text-white"
+                                                    ? "bg-[#1a2a40] text-white border-[#1a2a40]"
+                                                    : "border-[#1a2a40] text-[#1a2a40] hover:bg-[#1a2a40] hover:text-white"
                                                     }`}>
                                                 {s}
                                             </button>
