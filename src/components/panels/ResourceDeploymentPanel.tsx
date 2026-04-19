@@ -102,13 +102,13 @@ export default function ResourceDeploymentPanel({ city, metrics }: ResourceDeplo
             </div>
 
             {/* Equipment */}
-            <div className="grid grid-cols-3 gap-2 mb-4">
+            <div className="grid grid-cols-3 md:flex gap-2 mb-4 w-full">
                 {[
                     { icon: Building2, label: "Pump Stations", value: res.pumps + " units" },
                     { icon: Truck, label: "Evacuation Buses", value: res.buses + " buses" },
                     { icon: Users, label: "Medical Teams", value: res.medical + " teams" },
                 ].map(({ icon: Icon, label, value }) => (
-                    <div key={label} className="bg-[var(--color-navy)] text-white p-2 flex flex-col items-center text-center">
+                    <div key={label} className="bg-[var(--color-navy)] text-white p-2 flex flex-col items-center text-center flex-1">
                         <Icon className="w-3 h-3 mb-1 text-[var(--color-accent)]" />
                         <div className="text-[8px] font-bold uppercase tracking-widest opacity-60">{label}</div>
                         <div className="text-[11px] font-black">{value}</div>
@@ -117,18 +117,21 @@ export default function ResourceDeploymentPanel({ city, metrics }: ResourceDeplo
             </div>
 
             {/* Cost analysis */}
-            <div className="border-t border-[var(--color-navy)]/10 pt-3 flex flex-col gap-1">
-                <div className="flex justify-between text-[10px]">
-                    <span className="font-bold text-[var(--color-navy)]/60">Cost of Inaction</span>
-                    <span className="font-black text-red-600">₹{res.costInaction} Crore</span>
+            <div className="border border-[#B8962E]/30 bg-[#B8962E]/5 mt-4 p-3 flex flex-col gap-1 relative shadow-[0_4px_10px_rgba(184,150,46,0.1)]">
+                <div className="absolute top-0 left-0 w-full h-[2px] bg-[#B8962E]" />
+                
+                <div className="flex justify-between items-end mb-2">
+                    <span className="font-black text-[var(--color-navy)] uppercase tracking-wide text-[11px] flex items-center gap-1">
+                        ROI of Early Action
+                        <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center text-white text-[8px] animate-bounce">
+                            ↑
+                        </div>
+                    </span>
+                    <span className="font-black text-[#B8962E] text-2xl leading-none">{res.roi}:1</span>
                 </div>
-                <div className="flex justify-between text-[10px]">
-                    <span className="font-bold text-[var(--color-navy)]/60">Deployment Cost</span>
-                    <span className="font-black text-green-600">₹{res.costDeploy} Lakh</span>
-                </div>
-                <div className="flex justify-between text-[10px] border-t border-[var(--color-navy)]/10 pt-1 mt-1">
-                    <span className="font-black text-[var(--color-navy)] uppercase tracking-wide">ROI of Early Action</span>
-                    <span className="font-black text-[var(--color-accent)]">{res.roi}:1</span>
+                
+                <div className="text-[9px] font-bold text-[var(--color-navy)]/60 bg-[var(--color-navy)]/5 px-2 py-1 uppercase tracking-widest text-center">
+                    ₹{res.costDeploy} Lakh deployment vs ₹{res.costInaction} Crore inaction
                 </div>
             </div>
         </div>

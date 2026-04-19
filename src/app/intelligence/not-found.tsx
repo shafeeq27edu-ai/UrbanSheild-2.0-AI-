@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Home, ExternalLink } from "lucide-react";
+import { Home, Zap } from "lucide-react";
 
 export default function NotFound() {
     return (
@@ -10,40 +10,35 @@ export default function NotFound() {
                 <div className="absolute top-0 left-0 w-full h-[2px] bg-[#3B82F6]" />
                 
                 <div className="text-[10px] font-black uppercase tracking-[0.5em] text-[#3B82F6] mb-8">
-                    Invalid Route Signature
+                    Intelligence Node Null
                 </div>
 
                 <h1 className="text-8xl font-black text-white leading-none mb-6">404</h1>
                 
                 <h2 className="text-2xl font-black uppercase tracking-tighter mb-4">
-                    Module Not Found
+                    Logical Fault Detected
                 </h2>
                 
                 <p className="text-white/40 text-[11px] font-bold uppercase tracking-widest leading-relaxed mb-10">
-                    The requested intelligence module could not be located in the current geospatial grid. Check URI parameters or return to command center.
+                    The requested intelligence sub-node could not be located. Core logic suggests returning to the engine configuration.
                 </p>
 
                 <div className="flex flex-col gap-4">
                     <Link
-                        href="/"
+                        href="/intelligence"
                         className="flex items-center justify-center gap-2 px-8 py-4 bg-[#3B82F6] text-white font-black uppercase tracking-widest text-xs hover:bg-[#2563EB] transition-all shadow-[4px_4px_0px_#1D4ED8] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
                     >
-                        <Home className="w-4 h-4" />
-                        Return to Command Center
+                        <Zap className="w-4 h-4" />
+                        Intelligence Engine
                     </Link>
                     
                     <Link
-                        href="/about"
+                        href="/"
                         className="flex items-center justify-center gap-2 px-8 py-4 border-2 border-white/20 text-white font-black uppercase tracking-widest text-xs hover:bg-white/10 transition-all"
                     >
-                        <ExternalLink className="w-4 h-4" />
-                        Platform Intelligence
+                        <Home className="w-4 h-4" />
+                        Command Center
                     </Link>
-                </div>
-                
-                {/* Encryption Footer */}
-                <div className="mt-12 text-[8px] font-bold tracking-widest text-white/20 uppercase">
-                    [ERR_CODE: NULL_POINTER_REF]
                 </div>
             </div>
         </div>

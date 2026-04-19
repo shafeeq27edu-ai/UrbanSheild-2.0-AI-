@@ -88,32 +88,42 @@ export default function SMSAlertPreview({ city, metrics }: SMSAlertPreviewProps)
 
     return (
         <div className="border-2 border-[var(--color-navy)] bg-white/60 p-4">
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-2">
                 <Smartphone className="w-4 h-4 text-[var(--color-navy)]" />
-                <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[var(--color-navy)]/50">
-                    Multilingual SMS Alert Preview
+                <span className="text-[11px] font-black uppercase tracking-[0.15em] text-[var(--color-navy)]">
+                    Last-Mile Alert System
                 </span>
                 <div className="flex-1 h-px bg-[var(--color-navy)]/10" />
-                <span className="text-[9px] font-bold text-[var(--color-navy)]/40">{ALERTS.length} Languages</span>
+                <span className="text-[10px] font-black bg-green-500 text-white px-2 py-0.5">
+                    2.4M Reach
+                </span>
             </div>
+            <p className="text-[9px] font-bold text-[var(--color-navy)]/40 uppercase tracking-widest mb-4">
+                {ALERTS.length} regional languages, zero infrastructure dependency
+            </p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {ALERTS.slice(0, 9).map((a) => (
-                    <div key={a.lang} className="bg-[var(--color-navy)] rounded-none p-0 flex flex-col items-center" style={{ fontFamily: "monospace" }}>
-                        {/* Phone header */}
-                        <div className="w-full bg-black rounded-t-none px-2 py-1 flex items-center justify-between">
-                            <span className="text-[7px] text-white/60 font-bold">NDMA · EMERGENCY</span>
-                            <span className="text-[7px] text-red-400 font-bold">📱</span>
+                {ALERTS.slice(0, 9).map((a, idx) => {
+                    const isSent = idx < 5;
+                    return (
+                        <div key={a.lang} className="bg-[var(--color-navy)] rounded-none p-0 flex flex-col items-center" style={{ fontFamily: "monospace" }}>
+                            {/* Phone header */}
+                            <div className="w-full bg-black rounded-t-none px-2 py-1 flex items-center justify-between">
+                                <span className="text-[7px] text-white/60 font-bold">NDMA · EMERGENCY</span>
+                                <span className={`text-[7px] font-black px-1.5 py-0.5 rounded-sm ${isSent ? 'bg-green-500 text-white' : 'bg-amber-400 text-black'}`}>
+                                    {isSent ? 'SENT' : 'QUEUED'}
+                                </span>
+                            </div>
+                            {/* Screen */}
+                            <div className="w-full bg-slate-800 px-2 pt-2 pb-3 flex flex-col gap-1">
+                                <div className="text-[7px] text-amber-400 font-black uppercase tracking-widest">⚠ {a.name}</div>
+                                <div className="text-[8px] text-white/90 whitespace-pre-line leading-tight">{a.warning(a.area)}</div>
+                            </div>
+                            <div className="w-full bg-slate-900 px-2 py-1 text-[6px] text-white/30 text-center">
+                                National Disaster Alert · Govt. of India
+                            </div>
                         </div>
-                        {/* Screen */}
-                        <div className="w-full bg-slate-800 px-2 pt-2 pb-3 flex flex-col gap-1">
-                            <div className="text-[7px] text-amber-400 font-black uppercase tracking-widest">⚠ {a.name}</div>
-                            <div className="text-[8px] text-white/90 whitespace-pre-line leading-tight">{a.warning(a.area)}</div>
-                        </div>
-                        <div className="w-full bg-slate-900 px-2 py-1 text-[6px] text-white/30 text-center">
-                            National Disaster Alert · Govt. of India
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );

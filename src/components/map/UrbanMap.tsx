@@ -4,12 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import "leaflet/dist/leaflet.css";
 
 interface UrbanMapProps {
+    activeCity?: string;
     center: [number, number];
     riskLevel: number; // 0 to 100
     onMapClick: (lat: number, lng: number) => void;
 }
 
-export default function UrbanMap({ center, riskLevel, onMapClick }: UrbanMapProps) {
+export default function UrbanMap({ activeCity, center, riskLevel, onMapClick }: UrbanMapProps) {
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstance = useRef<any>(null);
     const markerRef = useRef<any>(null);
@@ -128,7 +129,8 @@ export default function UrbanMap({ center, riskLevel, onMapClick }: UrbanMapProp
         const map = mapInstance.current;
 
         // Use flyTo for smoother transition when searching/clicking
-        map.flyTo(center, map.getZoom() < 10 ? 12 : map.getZoom(), {
+        const targetZoom = activeCity && activeCity === "Patna" ? 12 : activeCity ? 11 : (map.getZoom() < 10 ? 12 : map.getZoom());
+        map.flyTo(center, targetZoom, {
             duration: 1.5
         });
 

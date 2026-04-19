@@ -134,15 +134,15 @@ export default function NeighborhoodRiskPanel({ city, neighborhoods, metrics }: 
                     {city.toUpperCase()}
                 </span>
             </div>
-            <div className="flex flex-col gap-2">
-                {zones.map(({ name, score }) => {
+            <div className="flex flex-col">
+                {zones.slice(0, 6).map(({ name, score }, idx, arr) => {
                     const cat = getRiskCategory(score);
                     return (
-                        <div key={name} className="flex items-center gap-3">
+                        <div key={name} className={`flex items-center gap-3 py-2 ${idx !== arr.length - 1 ? 'border-b border-slate-100' : ''}`}>
                             <span className="text-[10px] font-bold text-[var(--color-navy)] w-32 shrink-0 truncate uppercase tracking-wide">
                                 {name}
                             </span>
-                            <div className="flex-1 h-2 bg-slate-100 rounded-none overflow-hidden">
+                            <div className="flex-1 h-1 bg-slate-200 rounded-full overflow-hidden">
                                 <div
                                     className={`h-full transition-all duration-700 ${RISK_COLORS[cat]}`}
                                     style={{ width: `${score}%` }}
@@ -151,12 +151,18 @@ export default function NeighborhoodRiskPanel({ city, neighborhoods, metrics }: 
                             <span className={`text-[10px] font-black w-6 text-right ${RISK_TEXT_COLORS[cat]}`}>
                                 {score}
                             </span>
-                            <span className={`text-[8px] font-black uppercase tracking-widest w-14 ${RISK_TEXT_COLORS[cat]}`}>
+                            <span className={`text-[8px] font-black uppercase tracking-widest w-16 text-center rounded-full px-1.5 py-0.5 border ${RISK_TEXT_COLORS[cat]} border-current opacity-80 bg-slate-50/50`}>
                                 {cat}
                             </span>
                         </div>
                     );
                 })}
+                
+                {zones.length > 6 && (
+                    <button className="mt-4 text-[9px] font-black uppercase tracking-widest text-[#3B82F6] hover:text-[#B8962E] transition-colors self-start border-b border-transparent hover:border-[#B8962E]">
+                        VIEW ALL WARDS →
+                    </button>
+                )}
             </div>
         </div>
     );

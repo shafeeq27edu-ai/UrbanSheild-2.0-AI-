@@ -2,17 +2,17 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import { wayanadLandslide2024 } from '../modules/simulations/wayanadLandslide2024';
-import { assamFlood2024 } from '../modules/simulations/assamFlood2024';
-import { gujaratFlood2024 } from '../modules/simulations/gujaratFlood2024';
-import { biharFloodScenario } from '../modules/simulations/biharFloodScenario';
-import { bengaluruFlood2022 } from '../modules/simulations/bengaluruFlood2022';
-import { bengaluruFlood2020 } from '../modules/simulations/bengaluruFlood2020';
-import { bengaluruHeatwaveScenario } from '../modules/simulations/bengaluruHeatwaveScenario';
+import { wayanadLandslide2024 } from '@/modules/simulations/wayanadLandslide2024';
+import { assamFlood2024 } from '@/modules/simulations/assamFlood2024';
+import { gujaratFlood2024 } from '@/modules/simulations/gujaratFlood2024';
+import { biharFloodScenario } from '@/modules/simulations/biharFloodScenario';
+import { bengaluruFlood2022 } from '@/modules/simulations/bengaluruFlood2022';
+import { bengaluruFlood2020 } from '@/modules/simulations/bengaluruFlood2020';
+import { bengaluruHeatwaveScenario } from '@/modules/simulations/bengaluruHeatwaveScenario';
 
 // Dynamically import the map engine with SSR disabled to prevent Leaflet window errors
 const DisasterSimulationMap = dynamic(
-    () => import('./DisasterSimulationMap'),
+    () => import('@/components/map/DisasterSimulationMap'),
     {
         ssr: false,
         loading: () => <div className="text-[var(--color-navy)] flex justify-center items-center w-full h-full min-h-[400px]">Initializing Map Engine...</div>

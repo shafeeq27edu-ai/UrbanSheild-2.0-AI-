@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import IndiaDisasterPanel from "@/components/IndiaDisasterPanel";
+import IndiaDisasterPanel from "@/components/panels/IndiaDisasterPanel";
 import { CITIES } from "@/engines/cityProfiles";
 
 export default function IndiaIntelligencePage() {

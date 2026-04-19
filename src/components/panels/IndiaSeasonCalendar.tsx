@@ -43,11 +43,11 @@ const CALENDAR_DATA = [
 ];
 
 const LEVEL_STYLES = [
-    "bg-slate-100 text-slate-300",       // 0 — none
-    "bg-green-200 text-green-700",        // 1 — low
-    "bg-yellow-300 text-yellow-800",      // 2 — moderate
-    "bg-orange-400 text-orange-900",      // 3 — high
-    "bg-red-600 text-white",             // 4 — extreme
+    "bg-[#F5F0E8] text-slate-300",       // 0 — none
+    "bg-green-500 text-white",        // 1 — low
+    "bg-amber-400 text-white",      // 2 — moderate
+    "bg-orange-500 text-white",      // 3 — high
+    "bg-red-600 text-white animate-pulse",             // 4 — extreme
 ];
 
 const LEVEL_LABELS = ["—", "Low", "Mod", "High", "Extr"];
@@ -81,20 +81,25 @@ export default function IndiaSeasonCalendar() {
             </div>
 
             {/* Rows */}
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2 relative">
                 {CALENDAR_DATA.map((row) => (
-                    <div key={row.short} className="flex items-center gap-1">
-                        <div className="w-[4.5rem] shrink-0 text-[8px] font-black text-[var(--color-navy)] uppercase tracking-wide">
+                    <div key={row.short} className="flex items-center gap-1.5 relative group">
+                        <div className="w-[4.5rem] shrink-0 text-[8px] font-black text-[var(--color-navy)] uppercase tracking-wide cursor-help">
                             {row.short}
                         </div>
+                        {/* Tooltip */}
+                        <div className="absolute left-[4.5rem] -top-8 bg-[var(--color-navy)] text-white text-[10px] font-bold px-3 py-1.5 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-20 whitespace-nowrap hidden md:block">
+                            {row.label}
+                        </div>
+
                         {row.values.map((v, i) => (
                             <div
                                 key={i}
-                                title={`${row.label} — ${MONTHS[i]}: ${LEVEL_LABELS[v]}`}
-                                className={`flex-1 h-5 flex items-center justify-center text-[7px] font-black rounded-none transition-all cursor-default ${LEVEL_STYLES[v]
-                                    } ${i === currentMonth ? "ring-2 ring-[var(--color-accent)] ring-offset-0" : ""}`}
+                                className={`flex-1 h-6 flex items-center justify-center text-[8px] font-black rounded-lg transition-all cursor-default ${LEVEL_STYLES[v]
+                                    } ${i === currentMonth ? "ring-[3px] ring-[var(--color-navy)] ring-offset-1 scale-110 z-10" : ""}`}
                             >
                                 {v > 0 ? LEVEL_LABELS[v].charAt(0) : "·"}
+                                {i === currentMonth && <span className="absolute -top-3 w-[26px] text-center left-1/2 -translate-x-1/2 text-[6px] bg-[var(--color-navy)] text-white px-1 py-0.5 rounded uppercase">NOW</span>}
                             </div>
                         ))}
                     </div>

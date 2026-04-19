@@ -84,11 +84,24 @@ const RiskPanel: React.FC<RiskPanelProps> = ({ data }) => {
             <div className="mt-2 pt-4 border-t border-[var(--color-navy)]/10">
                 <label className="text-[8px] font-black uppercase tracking-[0.2em] text-[var(--color-charcoal)]/60 mb-2 block">Systemic Stress Drivers</label>
                 <div className="flex flex-wrap gap-2">
-                    {(data.top_drivers || ["Metric Latency", "Data Incomplete"]).map((d: string) => (
-                        <span key={d} className="bg-[var(--color-navy)]/5 text-[var(--color-navy)] px-2 py-1 rounded-full text-[9px] font-bold border border-[var(--color-navy)]/10 uppercase">
-                            {d.replace(/_/g, ' ')}
-                        </span>
-                    ))}
+                    {(data.top_drivers || ["Metric Latency", "Data Incomplete"]).map((d: string) => {
+                        const label = d.replace(/_/g, ' ').toUpperCase();
+                        let colorClass = "border-[var(--color-navy)]/20 text-[var(--color-navy)] bg-[var(--color-navy)]/5";
+                        
+                        if (label.includes("LATENCY") || label.includes("INCOMPLETE") || label.includes("CAPACITY")) {
+                            colorClass = "border-amber-500 text-amber-600 bg-amber-500/5";
+                        } else if (label.includes("FATIGUE") || label.includes("WARNING")) {
+                            colorClass = "border-orange-500 text-orange-600 bg-orange-500/5";
+                        } else if (label.includes("SATURATION") || label.includes("ANOMALY") || label.includes("CRITICAL")) {
+                            colorClass = "border-red-500 text-red-600 bg-red-500/5";
+                        }
+                        
+                        return (
+                            <span key={d} className={`px-3 py-1 rounded-full text-[10px] font-black border uppercase tracking-wider ${colorClass}`}>
+                                {label}
+                            </span>
+                        );
+                    })}
                 </div>
             </div>
         </div>

@@ -14,6 +14,9 @@ export const metadata: Metadata = {
     manifest: "/manifest.json"
 };
 
+import ChunkErrorRecovery from "@/components/system/ChunkErrorRecovery";
+import GlobalErrorBoundary from "@/components/system/GlobalErrorBoundary";
+
 export default function RootLayout({
     children,
 }: Readonly<{
@@ -24,7 +27,11 @@ export default function RootLayout({
             <body className={`${inter.className} min-h-screen flex flex-col bg-[var(--background)] text-[var(--text-primary)] font-sans`}>
                 <IntelligenceMenu />
                 <div className="flex-1 flex flex-col fade-transition">
-                    {children}
+                    <GlobalErrorBoundary>
+                        <ChunkErrorRecovery>
+                            {children}
+                        </ChunkErrorRecovery>
+                    </GlobalErrorBoundary>
                 </div>
                 <footer className="w-full bg-[var(--color-navy)] text-slate-500 border-t border-slate-800/50 px-6 py-4 flex justify-between items-center text-[10px] font-bold tracking-widest uppercase z-[1000] relative font-space-grotesk">
                     <div className="flex items-center gap-3">

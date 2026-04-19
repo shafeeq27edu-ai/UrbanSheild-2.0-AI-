@@ -12,8 +12,8 @@ import Header from '@/components/ui/Header';
 import RiskPanel from '@/components/ui/RiskPanel';
 import RiskAlert from '@/components/ui/RiskAlert';
 import LocationSearch from '@/components/map/LocationSearch';
-import IndiaDisasterPanel from '@/components/IndiaDisasterPanel';
-import EvacuationPanel from '@/components/EvacuationPanel';
+import IndiaDisasterPanel from '@/components/panels/IndiaDisasterPanel';
+import EvacuationPanel from '@/components/panels/EvacuationPanel';
 import { BENGALURU_RISK_FALLBACK } from '@/engines/cityDefaults';
 
 // SSR-Safe dynamic imports
@@ -22,12 +22,12 @@ const UrbanMap = dynamic(() => import('@/components/map/UrbanMap'), {
     loading: () => <div className="w-full h-full min-h-[500px] bg-slate-100 animate-pulse flex items-center justify-center text-[10px] font-black uppercase tracking-widest text-slate-400">Loading Geospatial Engine...</div>
 });
 
-const NeighborhoodRiskPanel = dynamic(() => import('@/components/NeighborhoodRiskPanel'), { ssr: false });
-const ForecastRiskTimeline = dynamic(() => import('@/components/ForecastRiskTimeline'), { ssr: false });
-const AnomalyBanner = dynamic(() => import('@/components/AnomalyBanner'), { ssr: false });
-const ResourceDeploymentPanel = dynamic(() => import('@/components/ResourceDeploymentPanel'), { ssr: false });
-const SMSAlertPreview = dynamic(() => import('@/components/SMSAlertPreview'), { ssr: false });
-const IndiaSeasonCalendar = dynamic(() => import('@/components/IndiaSeasonCalendar'), { ssr: false });
+const NeighborhoodRiskPanel = dynamic(() => import('@/components/panels/NeighborhoodRiskPanel'), { ssr: false });
+const ForecastRiskTimeline = dynamic(() => import('@/components/panels/ForecastRiskTimeline'), { ssr: false });
+const AnomalyBanner = dynamic(() => import('@/components/panels/AnomalyBanner'), { ssr: false });
+const ResourceDeploymentPanel = dynamic(() => import('@/components/panels/ResourceDeploymentPanel'), { ssr: false });
+const SMSAlertPreview = dynamic(() => import('@/components/panels/SMSAlertPreview'), { ssr: false });
+const IndiaSeasonCalendar = dynamic(() => import('@/components/panels/IndiaSeasonCalendar'), { ssr: false });
 
 // ─── Japanese Wave SVG Animation ──────────────────────────────────────────────
 function WaveAnimation() {
@@ -297,8 +297,9 @@ export default function Home() {
                         <div className="page-wrapper relative">
                             {/* Top telemetry bar */}
                             <div className="w-full bg-[var(--color-navy)] text-highlight text-[10px] font-black tracking-widest uppercase p-1 flex justify-between items-center px-4 pr-16 font-space">
-                                <span className={!error && displayMetrics ? "text-green-400" : "text-slate-400"}>
-                                    ● {t.ui_telemetry} ACTIVE
+                                <span className={`flex items-center gap-2 ${!error && displayMetrics ? "text-green-400" : "text-slate-400"}`}>
+                                            <span className="w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] bg-current" style={{ animation: "pulseScale 1.5s infinite" }} /> 
+                                            {t.ui_telemetry} ACTIVE
                                 </span>
                                 <div className="flex items-center gap-4">
                                     {/* Quick-access console buttons */}
@@ -339,7 +340,7 @@ export default function Home() {
                                     <button
                                         onClick={executeStressTest}
                                         disabled={loading}
-                                        className="w-full bg-amber-500 text-white font-black py-4 uppercase mb-4 shadow-[4px_4px_0px_#b45309] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 flex items-center justify-center"
+                                        className="w-full bg-amber-500 text-white font-black h-[52px] text-[14px] uppercase mb-6 shadow-[4px_4px_0px_#b45309] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                                     >
                                         {loading ? "INITIALIZING SIMULATION..." : t.ui_execute}
                                     </button>
@@ -413,6 +414,7 @@ export default function Home() {
 
                                     <div className="flex-1 min-h-[500px] relative border-2 border-[var(--color-navy)]">
                                         <UrbanMap
+                                            activeCity={selectedLocation}
                                             center={selectedCoords || [12.9716, 77.5946]}
                                             riskLevel={displayMetrics?.compound_risk_index || 0}
                                             onMapClick={handleMapClick}
@@ -662,6 +664,15 @@ export default function Home() {
                     </div>
                 </div>
             )}
+            
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @keyframes pulseScale {
+                    0% { transform: scale(1); opacity: 1; }
+                    50% { transform: scale(1.4); opacity: 0.5; }
+                    100% { transform: scale(1); opacity: 1; }
+                }
+            `}} />
         </main>
     );
 }

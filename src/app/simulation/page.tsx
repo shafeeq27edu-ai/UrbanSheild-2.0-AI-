@@ -1,7 +1,7 @@
 import React from "react";
-import HistoricalSimulations from "@/components/HistoricalSimulations";
-import DisasterSimulationPanel from "@/components/DisasterSimulationPanel";
-import ARVRSimulation from "@/components/ARVRSimulation";
+import HistoricalSimulations from "@/components/dashboard/HistoricalSimulations";
+import DisasterSimulationPanel from "@/components/dashboard/DisasterSimulationPanel";
+import ARVRSimulation from "@/components/dashboard/ARVRSimulation";
 
 export default function SimulationsPage() {
     return (

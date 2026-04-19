@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import SystemErrorFallback from "@/components/system/SystemErrorFallback";
 
 export default function Error({
@@ -10,9 +9,5 @@ export default function Error({
     error: Error & { digest?: string };
     reset: () => void;
 }) {
-    useEffect(() => {
-        console.error("Root Level Error:", error);
-    }, [error]);
-
-    return <SystemErrorFallback theme="dark" error={error} reset={reset} />;
+    return <SystemErrorFallback theme="light" error={error} reset={reset} />;
 }
